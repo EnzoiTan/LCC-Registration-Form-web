@@ -319,6 +319,46 @@ document.querySelector(".submit").addEventListener("click", async () => {
   }
 });
 
+async function fetchUserData(libraryId) {
+  try {
+    // Reference to the user document in Firestore
+    const userRef = doc(db, "LIDC_Users", libraryId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      // Get data from the document
+      const userData = docSnap.data();
+      console.log("User data fetched: ", userData);
+
+      // Display data on the webpage
+      displayUserData(userData);
+    } else {
+      console.log("No such document!");
+    }
+  } catch (error) {
+    console.error("Error fetching user data: ", error);
+  }
+}
+
+function displayUserData(userData) {
+  // Example of how to display fetched data in HTML
+  const userDataDiv = document.getElementById("user-data");
+
+  // Display each field of the fetched user data
+  userDataDiv.innerHTML = `
+    <p>Library ID: ${userData.libraryIdNo}</p>
+    <p>Name: ${userData.firstName} ${userData.lastName}</p>
+    <p>Department: ${userData.department}</p>
+    <p>Course: ${userData.course}</p>
+    <p>Major: ${userData.major}</p>
+    <p>School Year: ${userData.schoolYear}</p>
+    <p>Semester: ${userData.semester}</p>
+    <p>Valid Until: ${userData.validUntil}</p>
+    <p>Token: ${userData.token}</p>
+  `;
+}
+
+
 // Generate QR Code and trigger download
 async function generateQRCodeAndDownload(newEntry) {
   const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;

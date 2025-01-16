@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ID Card Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 20px;
+      }
+      canvas {
+        border: 1px solid #ccc;
+        margin: 20px auto;
+      }
+      button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Library ID Card Generator</h1>
+    <canvas id="id-card" width="600" height="300"></canvas>
+    <br />
+    <button id="download">Download ID Card</button>
+
+    <script>
+      const canvas = document.getElementById("id-card");
+      const ctx = canvas.getContext("2d");
+
+      // Sample user data
+      const user = {
+        libraryIdNo: "20017826",
+        fullName: "John Doe",
+        department: "Computer Science",
+        validUntil: "July 2025",
+        qrCodeURL:
+          "https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=20017826&token=ABC123DEF456",
+      };
+
+      // Draw the ID Card
+      function drawIDCard(user) {
+        // Background
+        ctx.fillStyle = "#f2f2f2";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Header
+        ctx.fillStyle = "#007BFF";
+        ctx.fillRect(0, 0, canvas.width, 60);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 20px Arial";
+        ctx.fillText("Library ID Card", canvas.width / 2 - 70, 40);
+
+        // User Details
+        ctx.fillStyle = "#000";
+        ctx.font = "16px Arial";
+        ctx.fillText(`Library ID: ${user.libraryIdNo}`, 20, 100);
+        ctx.fillText(`Name: ${user.fullName}`, 20, 130);
+        ctx.fillText(`Department: ${user.department}`, 20, 160);
+        ctx.fillText(`Valid Until: ${user.validUntil}`, 20, 190);
+
+        // Placeholder for photo
+        ctx.fillStyle = "#ccc";
+        ctx.fillRect(20, 220, 80, 80);
+        ctx.fillStyle = "#000";
+        ctx.font = "12px Arial";
+        ctx.fillText("Photo", 40, 260);
+
+        // Generate QR Code
+        QRCode.toCanvas(user.qrCodeURL, { width: 100 }, (err, qrCanvas) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          // Draw QR code on the canvas
+          ctx.drawImage(qrCanvas, 480, 180, 100, 100);
+        });
+
+        // Border
+        ctx.strokeStyle = "#007BFF";
+        ctx.lineWidth = 5;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // Call the function to draw the ID card
+      drawIDCard(user);
+
+      // Download the ID Card as an image
+      document.getElementById("download").addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = `LibraryID_${user.libraryIdNo}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    </script>
+  </body>
+</html>

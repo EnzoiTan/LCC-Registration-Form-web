@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scan Confirmation</title>
+  </head>
+  <body>
+    <h1>Scan Information</h1>
+    <p id="library-id-display">Loading...</p>
+
+    <script>
+      // Get the query parameter from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const libraryIdNo = urlParams.get("libraryIdNo");
+
+      // Display the library ID
+      if (libraryIdNo) {
+        document.getElementById(
+          "library-id-display"
+        ).textContent = `Library ID: ${libraryIdNo}`;
+      } else {
+        document.getElementById("library-id-display").textContent =
+          "Invalid Library ID.";
+      }
+    </script>
+  </body>
+</html>

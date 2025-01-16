@@ -40,7 +40,7 @@ const departmentCourses = {
         "English",
         "Mathematics",
       ],
-        "Bachelor of Technical Vocational Education": [
+      "Bachelor of Technical Vocational Education": [
         "Automotive Technology",
         "Civil and Construction Technology",
         "Drafting Technology",
@@ -163,7 +163,7 @@ const departmentCourses = {
   gs: {
     courses: {
       "Doctor of Philosophy": ["Technology Management"],
-      "BDoctor of Education": [
+      "Doctor of Education": [
         "Educational Administration and Supervision",
         "Learning and Instruction",
         "Curriculum Instruction",
@@ -267,7 +267,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   validUntilInput.value = "July 2025";
 });
 
-
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async () => {
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
@@ -302,7 +301,7 @@ document.querySelector(".submit").addEventListener("click", async () => {
     const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
     await setDoc(userRef, newEntry);
     alert("Data successfully submitted!");
-    generateQRCode(newEntry.libraryIdNo);
+    generateQRCodeAndDownload(newEntry.libraryIdNo);  // Generate QR and trigger download
     window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
@@ -310,15 +309,31 @@ document.querySelector(".submit").addEventListener("click", async () => {
   }
 });
 
-// Generate QR Code
-function generateQRCode(libraryIdNo) {
-  const qrData = `https://your-site-url.com/scan?libraryIdNo=${libraryIdNo}`;
-  QRCode.toDataURL(qrData, (err, url) => {
+// Generate QR Code and trigger download
+async function generateQRCodeAndDownload(libraryIdNo) {
+  const qrData = `https://enzoitan.github.io/LCC-Registration-Form-web/scan?libraryIdNo=${libraryIdNo}`;
+
+  QRCode.toDataURL(qrData, async (err, url) => {
     if (err) {
       console.error("Error generating QR code:", err);
       return;
     }
-    const qrCodeImg = document.getElementById("qr-code");
-    if (qrCodeImg) qrCodeImg.src = url;
+
+    // Trigger the download automatically
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `QR_Code_LibraryID_${libraryIdNo}.png`;
+    link.click();
+
+    // Save the QR code URL to Firestore
+    try {
+      // Save the QR code link (URL) to Firestore
+      const userRef = doc(db, "LIDC_Users", libraryIdNo);
+      await setDoc(userRef, { qrCodeURL: url }, { merge: true }); // Save the QR code URL
+
+      console.log("QR code URL saved to Firestore.");
+    } catch (error) {
+      console.error("Error saving QR code URL to Firestore:", error);
+    }
   });
 }

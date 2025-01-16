@@ -28,81 +28,24 @@ const departmentCourses = {
   },
   cte: {
     courses: {
-      "Bachelor of Elementary Education": [
-        "None",
-      ],
-      "Bachelor of Technology and Livelihood Education": [
-        "Home Economics",
-        "Industrial Arts",
-        "Information Communications Technology (ICT)",
-      ],
-      "Bachelor of Secondary Education": [
-        "English",
-        "Mathematics",
-      ],
-      "Bachelor of Technical Vocational Education": [
-        "Automotive Technology",
-        "Civil and Construction Technology",
-        "Drafting Technology",
-        "Electrical Technology",
-        "Electronics Technology",
-        "Food and Service Management",
-        "Garments, Fashion and Design",
-        "Heating, Ventilation and Air Conditioning Technology",
-        "Mechanical Technology",
-        "Welding and Fabrication Technology",
-      ],
-
-      "Professional Education Certificate": [
-        "None",
-      ],
+      "Bachelor of Elementary Education": ["None"],
+      "Bachelor of Technology and Livelihood Education": ["Home Economics", "Industrial Arts", "Information Communications Technology (ICT)"],
+      "Bachelor of Secondary Education": ["English", "Mathematics"],
+      "Bachelor of Technical Vocational Education": ["Automotive Technology", "Civil and Construction Technology", "Drafting Technology", "Electrical Technology", "Electronics Technology", "Food and Service Management", "Garments, Fashion and Design", "Heating, Ventilation and Air Conditioning Technology", "Mechanical Technology", "Welding and Fabrication Technology"],
+      "Professional Education Certificate": ["None"],
     },
   },
   cet: {
     courses: {
-        "BS Industrial Technology": [
-        "Architectural Drafting Technology",
-        "Civil Technology",
-        "Food Technology",
-        "Garments and Textile Technology",
-        "Mechatronics Technology",
-        "Power Plant Engineering Technology",
-      ],
-      "BS Automotive Technology": [
-        "None",
-      ],
-      "BS Electrical Technology": [
-        "None",
-      ],
-      "BS Electronics Technology": [
-        "None",
-      ],
-      "BS Mechanical Technology": [
-        "None",
-      ],
-      "BS Refrigeration and Air Conditioning Technology": [
-        "None",
-      ],
-      "BS Computer Technology": [
-        "None",
-      ],
-      "BS Civil Engineering": [
-        "None",
-      ],
-      "Bachelor of Industrial Technology": [
-        "Automotive Technology",
-        "Apparel and Fashion Technology",
-        "Architectural Drafting Technology",
-        "Culinary Technology",
-        "Construction Technology",
-        "Computer Technology",
-        "Electrical Technology",
-        "Electronics Technology",
-        "Heating, Ventilation and Air Conditioning Technology",
-        "Mechanical Technology",
-        "Mechatronics Technology",
-        "Power Plant Technology",
-      ],
+      "BS Industrial Technology": ["Architectural Drafting Technology", "Civil Technology", "Food Technology", "Garments and Textile Technology", "Mechatronics Technology", "Power Plant Engineering Technology"],
+      "BS Automotive Technology": ["None"],
+      "BS Electrical Technology": ["None"],
+      "BS Electronics Technology": ["None"],
+      "BS Mechanical Technology": ["None"],
+      "BS Refrigeration and Air Conditioning Technology": ["None"],
+      "BS Computer Technology": ["None"],
+      "BS Civil Engineering": ["None"],
+      "Bachelor of Industrial Technology": ["Automotive Technology", "Apparel and Fashion Technology", "Architectural Drafting Technology", "Culinary Technology", "Construction Technology", "Computer Technology", "Electrical Technology", "Electronics Technology", "Heating, Ventilation and Air Conditioning Technology", "Mechanical Technology", "Mechatronics Technology", "Power Plant Technology"],
     },
   },
   sba: {
@@ -115,7 +58,7 @@ const departmentCourses = {
     courses: {
       "BS Marine Engineering": ["None"],
     },
-  },                          
+  },
   cpes: {
     courses: {
       "Bachelor of Physical Education": ["None"],
@@ -124,33 +67,10 @@ const departmentCourses = {
   },
   ite: {
     courses: {
-        "Diploma of Technology": [
-          "Automotive Engineering Technology",
-          "Civil Engineering Technology",
-          "Electrical Engineering Technology",
-          "Electronics, Communication Technology",
-          "Food Production & Services Management Technology",
-          "Garments, Fashion & Design Technology",
-          "Hospitality Management Technology",
-          "Information Technology",
-          "Mechanical Engineering Technology",
-        ],
-        "3-Year Trade Industrial Technical Education": [
-          "Civil Technology",
-          "Mechanical Technology",
-          "Welding & Fabrication Technology",
-        ],
-        "Associate in Industrial Technology": [
-          "Auto Technology",
-          "Electrical Technology",
-          "Electronics Technology",
-          "Food Technology",
-          "Garments & Textile Technology",
-          "Refrigeration and Air Conditioning Technology",
-        ],
-        "2-Year Trade Technical Education Curriculum": [
-          "Technical Drafting Technology",
-        ],
+      "Diploma of Technology": ["Automotive Engineering Technology", "Civil Engineering Technology", "Electrical Engineering Technology", "Electronics, Communication Technology", "Food Production & Services Management Technology", "Garments, Fashion & Design Technology", "Hospitality Management Technology", "Information Technology", "Mechanical Engineering Technology"],
+      "3-Year Trade Industrial Technical Education": ["Civil Technology", "Mechanical Technology", "Welding & Fabrication Technology"],
+      "Associate in Industrial Technology": ["Auto Technology", "Electrical Technology", "Electronics Technology", "Food Technology", "Garments & Textile Technology", "Refrigeration and Air Conditioning Technology"],
+      "2-Year Trade Technical Education Curriculum": ["Technical Drafting Technology"],
     },
   },
   shs: {
@@ -163,24 +83,11 @@ const departmentCourses = {
   gs: {
     courses: {
       "Doctor of Philosophy": ["Technology Management"],
-      "Doctor of Education": [
-        "Educational Administration and Supervision",
-        "Learning and Instruction",
-        "Curriculum Instruction",
-      ],
+      "Doctor of Education": ["Educational Administration and Supervision", "Learning and Instruction", "Curriculum Instruction"],
       "Doctor of Technology Education": ["None"],
-      "Master of Arts in Teaching Vocational Education": [
-        "Technology and Livelihood Education",
-        "Home Economics",
-      ],
-      "Master of Arts in Education": [
-        "Educational Administration and Supervision",
-        "Curriculum and Instructional Development",
-        "Mathematics",
-      ],
-      "Master of Technology Education": [
-        "None",
-      ],
+      "Master of Arts in Teaching Vocational Education": ["Technology and Livelihood Education", "Home Economics"],
+      "Master of Arts in Education": ["Educational Administration and Supervision", "Curriculum and Instructional Development", "Mathematics"],
+      "Master of Technology Education": ["None"],
     },
   },
 };

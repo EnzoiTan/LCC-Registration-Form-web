@@ -22,7 +22,7 @@ const db = getFirestore(app);
 const departmentCourses = {
   cics: {
     courses: {
-      "BS Computer Science": ["None"],
+      "BS Information System": ["None"],
       "BS Information Technology": ["None"],
     },
   },

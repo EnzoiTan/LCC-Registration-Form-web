@@ -311,7 +311,7 @@ document.querySelector(".submit").addEventListener("click", async () => {
 
 // Generate QR Code and trigger download
 async function generateQRCodeAndDownload(libraryIdNo) {
-  const qrData = `https://enzoitan.github.io/LCC-Registration-Form-web/scan?libraryIdNo=${libraryIdNo}`;
+  const qrData = `https://enzoitan.github.io/LCC-Registration-Form-web/libraryIdNo=${libraryIdNo}`;
 
   QRCode.toDataURL(qrData, async (err, url) => {
     if (err) {

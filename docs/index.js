@@ -18,7 +18,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Department and Courses Data
 const departmentCourses = {
   cics: {
     courses: {
@@ -322,9 +321,9 @@ document.querySelector(".submit").addEventListener("click", async () => {
 
 // Generate QR Code and trigger download
 async function generateQRCodeAndDownload(newEntry) {
-  const qrData = `https://enzoitan.github.io/LCC-Registration-Form-web?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
+  const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
 
-  QRCode.toDataURL(qrData, async (err, url) => {
+  QRCode.toDataURL(fullQRCodeLink, async (err, url) => {
     if (err) {
       console.error("Error generating QR code:", err);
       return;
@@ -336,15 +335,15 @@ async function generateQRCodeAndDownload(newEntry) {
     link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
     link.click();
 
-    // Save the QR code URL to Firestore
+    // Save the full QR code URL to Firestore
     try {
-      // Save the QR code link (URL) to Firestore
+      // Save the full QR code link (URL) to Firestore
       const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-      await setDoc(userRef, { qrCodeURL: url }, { merge: true }); // Save the QR code URL
+      await setDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true }); // Save the full QR code URL
 
-      console.log("QR code URL saved to Firestore.");
+      console.log("Full QR code URL saved to Firestore.");
     } catch (error) {
-      console.error("Error saving QR code URL to Firestore:", error);
+      console.error("Error saving full QR code URL to Firestore:", error);
     }
   });
 }

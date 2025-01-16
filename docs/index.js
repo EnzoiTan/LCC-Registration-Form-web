@@ -1,8 +1,8 @@
-// Firebase Firestore initialization (same as before)
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Firebase configuration (use your existing config)
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCKlyckfCUI_Ooc8XiSziJ-iaKR1cbw85I",
   authDomain: "lcc-lidc.firebaseapp.com",
@@ -17,51 +17,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// Extract the libraryIdNo from the URL
-const urlParams = new URLSearchParams(window.location.search);
-const libraryIdNo = urlParams.get("libraryIdNo");
-
-if (libraryIdNo) {
-  fetchUserData(libraryIdNo);
-} else {
-  console.error("No libraryIdNo found in URL.");
-}
-
-// Fetch user data from Firestore
-async function fetchUserData(libraryIdNo) {
-  try {
-    const userRef = doc(db, "LIDC_Users", libraryIdNo);
-    const docSnapshot = await getDoc(userRef);
-
-    if (docSnapshot.exists()) {
-      const userData = docSnapshot.data();
-      displayUserData(userData);
-    } else {
-      console.error("No such user found!");
-      alert("User not found.");
-    }
-  } catch (error) {
-    console.error("Error fetching user data:", error);
-    alert("An error occurred while fetching the data. Please try again.");
-  }
-}
-
-// Display the user data on the page
-function displayUserData(userData) {
-  // Example: Populate fields with the retrieved data
-  document.getElementById("library-id").textContent = userData.libraryIdNo || "N/A";
-  document.getElementById("valid-until").textContent = userData.validUntil || "N/A";
-  document.getElementById("last-name").textContent = userData.lastName || "N/A";
-  document.getElementById("first-name").textContent = userData.firstName || "N/A";
-  document.getElementById("gender").textContent = userData.gender || "N/A";
-  document.getElementById("department").textContent = userData.department || "N/A";
-  document.getElementById("course").textContent = userData.course || "N/A";
-  document.getElementById("major").textContent = userData.major || "N/A";
-  document.getElementById("school-year").textContent = userData.schoolYear || "N/A";
-  document.getElementById("semester").textContent = userData.semester || "N/A";
-  document.getElementById("times-entered").textContent = userData.timesEntered || "0";
-}
 
 // Department and Courses Data
 const departmentCourses = {

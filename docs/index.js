@@ -114,7 +114,7 @@ const departmentCourses = {
     courses: {
       "BS Marine Engineering": ["None"],
     },
-  },                          
+  },                           
   cpes: {
     courses: {
       "Bachelor of Physical Education": ["None"],

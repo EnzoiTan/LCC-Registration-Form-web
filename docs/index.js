@@ -303,6 +303,7 @@ document.querySelector(".submit").addEventListener("click", async () => {
     await setDoc(userRef, newEntry);
     alert("Data successfully submitted!");
     generateQRCode(newEntry.libraryIdNo);
+    window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");

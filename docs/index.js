@@ -267,6 +267,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   validUntilInput.value = "July 2025";
 });
 
+// Generate Random Token
+function generateRandomToken() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 16; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return token;
+}
+
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async () => {
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
@@ -295,13 +305,14 @@ document.querySelector(".submit").addEventListener("click", async () => {
     schoolYear,
     semester,
     timesEntered: 0,
+    token: generateRandomToken(),  // Add the random token here
   };
 
   try {
     const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
     await setDoc(userRef, newEntry);
     alert("Data successfully submitted!");
-    generateQRCodeAndDownload(newEntry.libraryIdNo);  // Generate QR and trigger download
+    generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
     window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
@@ -310,8 +321,8 @@ document.querySelector(".submit").addEventListener("click", async () => {
 });
 
 // Generate QR Code and trigger download
-async function generateQRCodeAndDownload(libraryIdNo) {
-  const qrData = `https://enzoitan.github.io/LCC-Registration-Form-web?libraryIdNo=${libraryIdNo}`;
+async function generateQRCodeAndDownload(newEntry) {
+  const qrData = `https://enzoitan.github.io/LCC-Registration-Form-web?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
 
   QRCode.toDataURL(qrData, async (err, url) => {
     if (err) {
@@ -322,13 +333,13 @@ async function generateQRCodeAndDownload(libraryIdNo) {
     // Trigger the download automatically
     const link = document.createElement("a");
     link.href = url;
-    link.download = `QR_Code_LibraryID_${libraryIdNo}.png`;
+    link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
     link.click();
 
     // Save the QR code URL to Firestore
     try {
       // Save the QR code link (URL) to Firestore
-      const userRef = doc(db, "LIDC_Users", libraryIdNo);
+      const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
       await setDoc(userRef, { qrCodeURL: url }, { merge: true }); // Save the QR code URL
 
       console.log("QR code URL saved to Firestore.");

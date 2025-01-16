@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="icon" href="zppsu-logo.png" type="image/x-icon" />
+
+    <title>ZPPSU Library Users Registration Form</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+    <!-- Correct QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="lidc-title">
+        <div class="logo-zppsu">
+          <img src="zppsu-logo.png" alt="" />
+          <div>
+            <p class="title">
+              Zamboanga Peninsula Polytechnic State University
+            </p>
+            <p>LIBRARY USERS</p>
+            <span>Registration Form</span>
+          </div>
+        </div>
+      </div>
+      <div class="name-inputs">
+        <div class="data-input">
+          <p>Last Name</p>
+          <input type="text" required />
+        </div>
+        <div class="data-input">
+          <p>First Name</p>
+          <input type="text" required />
+        </div>
+        <div class="data-input middle-initial">
+          <p>Middle Initial</p>
+          <input type="text" />
+        </div>
+        <div class="data-input gender">
+          <p>Gender</p>
+          <select required>
+            <option value="" disabled selected class="select-option">
+              Select
+            </option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+      </div>
+      <div class="course-year-inputs">
+        <div class="data-input department-input">
+          <p>Department</p>
+          <select id="department-select" required>
+            <option value="" disabled selected class="select-option">
+              Select Department
+            </option>
+            <option value="cics">
+              College of Information in Computing Sciences (CICS)
+            </option>
+            <option value="cte">College of Teacher Education (CTE)</option>
+            <option value="cet">
+              College of Engineering and Technology (CET)
+            </option>
+            <option value="cahss">
+              College of Arts, Humanities and Social Sciences (CAHSS)
+            </option>
+            <option value="sba">School of Business Administration (SBA)</option>
+            <option value="cme">College of Marine Education (CME)</option>
+            <option value="cpes">
+              College of Physical Education and Sport (CPES)
+            </option>
+            <option value="ite">Institute of Technical Education (ITE)</option>
+            <option value="shs">Senior High School (SHS)</option>
+            <option value="gs">Graduate School</option>
+          </select>
+        </div>
+        <div class="data-input course-input">
+          <p>Course</p>
+          <select id="course-select" required>
+            <option value="" disabled selected>Select Course</option>
+          </select>
+        </div>
+        <div class="data-input year-input">
+          <p>Major</p>
+          <select id="major-select" required>
+            <option value="" disabled selected>Select Major</option>
+          </select>
+        </div>
+      </div>
+      <div class="year-sem-inputs">
+        <div class="data-input">
+          <p>School Year (S.Y.)</p>
+          <select id="year-select" required>
+            <option value="" disabled selected class="select-option">
+              Select S.Y.
+            </option>
+            <option value="2024-2025">2024 - 2025</option>
+            <option value="2025-2026">2025 - 2026</option>
+            <option value="2026-2027">2026 - 2027</option>
+            <option value="2027-2028">2027 - 2028</option>
+          </select>
+        </div>
+        <div class="data-input">
+          <p>Semester</p>
+          <select id="semester-select" required>
+            <option value="" disabled selected class="select-option">
+              Select Sem
+            </option>
+            <option value="first-semester">First Semester</option>
+            <option value="second-semester">Second Semester</option>
+          </select>
+        </div>
+      </div>
+      <div class="generate-data">
+        <div class="data-input">
+          <p>Library ID No.</p>
+          <div class="input-wrapper">
+            <input type="text" id="library-id" readonly required />
+          </div>
+        </div>
+        <div class="data-input">
+          <p>Valid Until</p>
+          <div class="input-wrapper">
+            <input type="text" id="valid-until" readonly required />
+          </div>
+        </div>
+      </div>
+
+      <button class="submit">Submit</button>
+    </div>
+
+    <script type="module" src="firebase.js"></script>
+    <script type="module" src="index.js" defer></script>
+  </body>
+</html>

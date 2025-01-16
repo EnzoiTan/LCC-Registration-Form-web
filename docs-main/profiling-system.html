@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Profile View</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .container {
+        margin-top: 50px;
+      }
+      .profile-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .qr-code img {
+        max-width: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center mb-4">Student Profiles</h1>
+      <div id="profiles"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.8.0/dist/jszip.min.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyCKlyckfCUI_Ooc8XiSziJ-iaKR1cbw85I",
+        authDomain: "lcc-lidc.firebaseapp.com",
+        projectId: "lcc-lidc",
+        storageBucket: "lcc-lidc.firebasestorage.app",
+        messagingSenderId: "934783227135",
+        appId: "1:934783227135:web:4b85df00c1186c8d5fe8ca",
+        measurementId: "G-S3X4YSV65S",
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      // Fetch student profiles from Firestore
+      function fetchProfiles() {
+        const profilesRef = db.collection("LIDC_Users");
+        profilesRef
+          .get()
+          .then((snapshot) => {
+            let profilesHtml = "";
+            snapshot.forEach((doc) => {
+              const profile = doc.data();
+              const qrCodeURL = profile.qrCode || "https://placehold.it/150"; // Placeholder QR if not available
+              const timesEntered = profile.timesEntered || 0;
+
+              profilesHtml += `
+                            <div class="profile-card">
+                                <div class="profile-header">
+                                    <h4>${profile.firstName} ${
+                profile.middleName || ""
+              } ${profile.lastName}</h4>
+                                    <button class="btn btn-primary" onclick="downloadProfile('${
+                                      doc.id
+                                    }', '${profile.firstName} ${
+                profile.lastName
+              }')">Download Profile</button>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <p><strong>Contact:</strong> ${
+                                          profile.contactNo
+                                        }</p>
+                                        <p><strong>Course:</strong> ${
+                                          profile.course
+                                        }</p>
+                                        <p><strong>Year:</strong> ${
+                                          profile.year
+                                        }</p>
+                                        <p><strong>Library ID:</strong> ${
+                                          profile.libraryIdNo
+                                        }</p>
+                                        <p><strong>Valid Until:</strong> ${
+                                          profile.validUntil
+                                        }</p>
+                                        <p><strong>Times Entered:</strong> ${timesEntered}</p>
+                                    </div>
+                                    <div class="col-md-6 qr-code">
+                                        <img src="${qrCodeURL}" alt="QR Code">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+            });
+            document.getElementById("profiles").innerHTML = profilesHtml;
+          })
+          .catch((error) => {
+            console.error("Error fetching profiles: ", error);
+          });
+      }
+
+      // Function to download profile as a ZIP file
+      function downloadProfile(docId, studentName) {
+        const zip = new JSZip();
+        const profileData = {
+          name: studentName,
+          id: docId,
+          qrCode: `https://example.com/qr/${docId}`, // You can replace with actual QR code URL if needed
+        };
+
+        zip.file(`${studentName}_profile.txt`, JSON.stringify(profileData));
+        zip.generateAsync({ type: "blob" }).then(function (content) {
+          // Trigger file download
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(content);
+          a.download = `${studentName}_profile.zip`;
+          a.click();
+        });
+      }
+
+      // Load profiles when the page is ready
+      fetchProfiles();
+    </script>
+  </body>
+</html>

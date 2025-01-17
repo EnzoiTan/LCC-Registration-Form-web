@@ -239,46 +239,23 @@ body{
             padding: 30px;
         }
     
-        .logo-zppsu {
-            display: flex;
-            margin-bottom: 20px;
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 15px;
-            height: auto; /* Maintain aspect ratio */
-            margin-bottom: 0.5rem; /* Relative margin */
-    
-            .title {
-                font-size: 0.1rem; /* Scales better with screen size */
-                font-weight: 600;
-                color: #8b2c2c;
-                margin: 0;
-                position: relative;
-                top: 0rem; /* Adjusted for better scaling */
-            }
+        .logo-zppsu img {
+            width: 60px !important;
+            height: 60px !important;
         }
     
-        .lidc-title {
-            font-weight: 600;
-            color: rgb(22, 24, 41);
-            margin-bottom: 2rem; /* Relative margin */
+        .logo-zppsu .title {
+            font-size: 1rem !important;
+            top: 0px !important;
+        }
     
-            p {
-                font-size: 10rem; /* Adjust font size dynamically */
-                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-                margin: 0; /* Removed default margin */
-                color: rgb(22, 24, 41);
-            }
+        .lidc-title p {
+            font-size: 1.2rem !important;
+        }
     
-            span {
-                color: rgb(22, 24, 41);
-                font-size: 1.5rem; /* Dynamically adjust font size */
-                justify-content: flex-end;
-                padding-top: 0;
-                font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-                position: relative;
-                top: -0.5rem; /* Adjusted for better scaling */
-            }
+        .lidc-title span {
+            font-size: 1rem !important;
+            top: 0px !important;
         }
     
         .name-inputs,
@@ -288,6 +265,11 @@ body{
             gap: 0 !important; /* Override other styles */
             margin: 0 !important;
             padding: 0 !important;
+        }
+
+        .logo-zppsu{
+            flex-direction: column;
+            gap: 0px !important;
         }
     }
     

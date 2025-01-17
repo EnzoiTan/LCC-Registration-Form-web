@@ -41,7 +41,6 @@ body {
 .container .logo-zppsu {
   display: flex;
   margin-bottom: 20px;
-  align-items: center;
   gap: 15px;
 }
 .container .logo-zppsu img {
@@ -197,9 +196,68 @@ select {
 }
 
 @media (max-width: 768px) {
+  body {
+    background-color: #8b2c2c; /* Removed duplicate background-color */
+    font-family: Arial, sans-serif;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto; /* Changed to auto for better scrolling behavior */
+    margin: 10px;
+  }
+  .container {
+    background-color: #fff;
+    width: 90%; /* Use percentage to make it responsive */
+    max-width: 800px; /* Ensure it doesn't exceed a specific size */
+    height: auto; /* Allow height to adjust based on content */
+    border-radius: 5px;
+    overflow-y: auto; /* Enable scrolling if content overflows */
+  }
+  .logo-zppsu {
+    display: flex;
+    margin-bottom: 20px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 0.5rem; /* Relative margin */
+  }
+  .logo-zppsu .title {
+    font-size: 0.1rem; /* Scales better with screen size */
+    font-weight: 600;
+    color: #8b2c2c;
+    margin: 0;
+    position: relative;
+    top: 0rem; /* Adjusted for better scaling */
+  }
+  .lidc-title {
+    font-weight: 600;
+    color: rgb(22, 24, 41);
+    margin-bottom: 2rem; /* Relative margin */
+  }
+  .lidc-title p {
+    font-size: 10rem; /* Adjust font size dynamically */
+    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+    margin: 0; /* Removed default margin */
+    color: rgb(22, 24, 41);
+  }
+  .lidc-title span {
+    color: rgb(22, 24, 41);
+    font-size: 1.5rem; /* Dynamically adjust font size */
+    justify-content: flex-end;
+    padding-top: 0;
+    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+    position: relative;
+    top: -0.5rem; /* Adjusted for better scaling */
+  }
   .name-inputs,
   .course-year-inputs {
-    flex-direction: column; /* Stack inputs vertically on smaller screens */
+    display: flex; /* Ensure flexbox layout applies */
+    flex-direction: column;
+    gap: 0 !important; /* Override other styles */
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
 .input-wrapper {

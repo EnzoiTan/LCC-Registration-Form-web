@@ -241,11 +241,8 @@ select {
   .logo-zppsu {
     flex-direction: column;
     gap: 0px !important;
-    justify-content: center !important;
-    align-items: center !important;
-  }
-  div {
     text-align: center !important;
+    align-items: center !important;
   }
 }
 .input-wrapper {

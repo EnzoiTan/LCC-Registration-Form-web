@@ -245,16 +245,16 @@ body{
         }
     
         .logo-zppsu .title {
-            font-size: 1rem !important;
+            font-size: 1.3rem !important;
             top: 0px !important;
         }
     
         .lidc-title p {
-            font-size: 1.2rem !important;
+            font-size: 1.5rem !important;
         }
     
         .lidc-title span {
-            font-size: 1rem !important;
+            font-size: 1.3rem !important;
             top: 0px !important;
         }
     
@@ -270,6 +270,12 @@ body{
         .logo-zppsu{
             flex-direction: column;
             gap: 0px !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        div{
+            text-align: center !important;
         }
     }
     

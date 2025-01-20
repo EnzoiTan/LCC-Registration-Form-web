@@ -407,12 +407,12 @@ if (libraryIdNo && token) {
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
-      // updateCourses(userData.department).then(() => {
-      //   courseSelect.value = userData.course;
-      //   updateMajors(userData.course, userData.department).then(() => {
-      //     majorSelect.value = userData.major;
-      //   });
-      // });
+      updateCourses(userData.department).then(() => {
+        courseSelect.value = userData.course;
+        updateMajors(userData.course, userData.department).then(() => {
+          majorSelect.value = userData.major;
+        });
+      });
 
       updateCourses(userData.department).then(() => {
         document.getElementById("course-select").value = userData.course;

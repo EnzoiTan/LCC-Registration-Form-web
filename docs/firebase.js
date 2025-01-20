@@ -32,8 +32,15 @@ if (libraryIdNo && token) {
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
-      document.getElementById("course-select").value = userData.course;
-      document.getElementById("major-select").value = userData.major;
+
+      // Update courses and majors based on department and course
+      updateCourses(userData.department).then(() => {
+        document.getElementById("course-select").value = userData.course;
+        updateMajors(userData.course, userData.department).then(() => {
+          document.getElementById("major-select").value = userData.major;
+        });
+      });
+
       document.getElementById("grade-select").value = userData.grade;
       document.getElementById("strand-select").value = userData.strand;
       document.getElementById("year-select").value = userData.schoolYear;
@@ -77,5 +84,35 @@ async function fetchUserData(libraryId) {
   } catch (error) {
     console.error("Error fetching user data: ", error);
     return null;
+  }
+}
+
+async function updateCourses(department) {
+  const courseSelect = document.getElementById("course-select");
+  courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
+  if (department && departmentCourses[department]) {
+    const courses = departmentCourses[department].courses;
+    for (const course in courses) {
+      const option = document.createElement("option");
+      option.value = course;
+      option.textContent = course;
+      courseSelect.appendChild(option);
+    }
+  }
+}
+
+async function updateMajors(course, department) {
+  const majorSelect = document.getElementById("major-select");
+  majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
+  if (course && department && departmentCourses[department]) {
+    const majors = departmentCourses[department].courses[course];
+    if (majors) {
+      majors.forEach((major) => {
+        const option = document.createElement("option");
+        option.value = major;
+        option.textContent = major;
+        majorSelect.appendChild(option);
+      });
+    }
   }
 }

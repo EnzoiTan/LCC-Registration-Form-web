@@ -151,7 +151,7 @@ const strandInputDiv = document.querySelector(".strand-input");
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
   updateCourses(selectedDepartment);
-  updateMajors(null);
+  updateMajors(null); // Clear majors
 
   if (selectedDepartment === "shs") {
     gradeInputDiv.style.display = "block";
@@ -190,6 +190,7 @@ function updateCourses(department) {
   });
 }
 
+
 function updateMajors(course, department) {
   return new Promise((resolve) => {
     majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
@@ -212,12 +213,19 @@ function updateMajors(course, department) {
   });
 }
 
+
 // Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
 
+  if (!libraryIdInput || !validUntilInput) {
+    console.error("One or more required DOM elements are missing.");
+    return;
+  }
+
   try {
+    // Query Firestore to get the last Library ID
     const libraryIdQuery = query(
       collection(db, "LIDC_Users"),
       orderBy("libraryIdNo", "desc"),
@@ -236,22 +244,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     alert("Failed to generate Library ID. Please refresh the page.");
   }
 
+  // Set Valid Until Date
   validUntilInput.value = "July 2025";
 });
 
 // Generate Random Token
 function generateRandomToken() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  return Array.from({ length: 16 }, () => characters.charAt(Math.floor(Math.random() * characters.length))).join('');
+  let token = "";
+  for (let i = 0; i < 16; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return token;
 }
 
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
+
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
 
-  // Add field extraction here
+  const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
+  const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
+  const middleInitial = document.querySelector(".name-inputs .data-input:nth-child(3) input").value.trim();
+  const gender = document.querySelector(".gender select").value.trim();
+  const department = departmentSelect.value.trim();
+  const course = courseSelect.value.trim();
+  const major = majorSelect.value.trim();
+  const grade = gradeSelect.value.trim();
+  const strand = strandSelect.value.trim();
+  const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
+  const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
   if (!lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
     alert("Please fill out all required fields before submitting.");
@@ -280,7 +304,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
     await setDoc(userRef, newEntry);
     alert("Data successfully submitted!");
-    generateQRCodeAndDownload(newEntry);
+    generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
     window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
@@ -288,7 +312,61 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   }
 });
 
-// QR Code Generation and other relevant sections remain unchanged.
+async function fetchUserData(libraryId) {
+  try {
+    const userRef = doc(db, "LIDC_Users", libraryId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      const userData = docSnap.data();
+      displayUserData(userData);
+    } else {
+      console.error("No such document!");
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+}
+
+async function displayUserData(userData) {
+  const userDataDiv = document.getElementById("user-data");
+
+  // Update courses and majors based on department and course
+  await updateCourses(userData.department);
+  document.getElementById("course-select").value = userData.course;
+  await updateMajors(userData.course, userData.department);
+  document.getElementById("major-select").value = userData.major;
+
+  // Display each field of the fetched user data
+  userDataDiv.innerHTML = `
+    <p>Library ID: ${userData.libraryIdNo}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
+    <p>Department: ${userData.department}</p>
+    <p>Course: ${userData.course}</p>
+    <p>Major: ${userData.major}</p>
+    <p>Grade: ${userData.grade}</p>
+    <p>Strand: ${userData.strand}</p>
+    <p>School Year: ${userData.schoolYear}</p>
+    <p>Semester: ${userData.semester}</p>
+    <p>Valid Until: ${userData.validUntil}</p>
+    <p>Token: ${userData.token}</p>
+  `;
+
+  // Hide or show fields based on department
+  if (userData.department === "shs") {
+    document.querySelector(".course-input").style.display = "none";
+    document.querySelector(".year-input").style.display = "none";
+    document.querySelector(".grade-input").style.display = "block";
+    document.querySelector(".strand-input").style.display = "block"; 
+  } else {
+    document.querySelector(".course-input").style.display = "block";
+    document.querySelector(".year-input").style.display = "block";
+    document.querySelector(".grade-input").style.display = "none";
+    document.querySelector(".strand-input").style.display = "none";
+  }
+}
+
+// Generate QR Code and trigger download
 async function generateQRCodeAndDownload(newEntry) {
   const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
 

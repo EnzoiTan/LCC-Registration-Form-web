@@ -30,6 +30,7 @@ if (libraryIdNo && token) {
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
       document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
       document.querySelector(".gender select").value = userData.gender;
+      document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
       document.getElementById("course-select").value = userData.course;
       document.getElementById("major-select").value = userData.major;

@@ -343,7 +343,7 @@ function displayUserData(userData) {
     document.querySelector(".course-input").style.display = "none";
     document.querySelector(".year-input").style.display = "none";
     document.querySelector(".grade-input").style.display = "block";
-    document.querySelector(".strand-input").style.display = "block";
+    document.querySelector(".strand-input").style.display = "block"; 
   } else {
     document.querySelector(".course-input").style.display = "block";
     document.querySelector(".year-input").style.display = "block";

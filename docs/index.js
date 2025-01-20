@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -253,6 +253,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
 
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
+  const middleInitial = document.querySelector(".name-inputs .data-input:nth-child(3) input").value.trim();
   const gender = document.querySelector(".gender select").value.trim();
   const department = departmentSelect.value.trim();
   const course = courseSelect.value.trim();
@@ -272,6 +273,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     validUntil: validUntilInput.value.trim(),
     lastName,
     firstName,
+    middleInitial,
     gender,
     department,
     course: department === "shs" ? "" : course,
@@ -324,15 +326,30 @@ function displayUserData(userData) {
   // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Name: ${userData.firstName} ${userData.lastName}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
     <p>Course: ${userData.course}</p>
     <p>Major: ${userData.major}</p>
+    <p>Grade: ${userData.grade}</p>
+    <p>Strand: ${userData.strand}</p>
     <p>School Year: ${userData.schoolYear}</p>
     <p>Semester: ${userData.semester}</p>
     <p>Valid Until: ${userData.validUntil}</p>
     <p>Token: ${userData.token}</p>
   `;
+
+  // Hide or show fields based on department
+  if (userData.department === "shs") {
+    document.querySelector(".course-input").style.display = "none";
+    document.querySelector(".year-input").style.display = "none";
+    document.querySelector(".grade-input").style.display = "block";
+    document.querySelector(".strand-input").style.display = "block"; 
+  } else {
+    document.querySelector(".course-input").style.display = "block";
+    document.querySelector(".year-input").style.display = "block";
+    document.querySelector(".grade-input").style.display = "none";
+    document.querySelector(".strand-input").style.display = "none";
+  }
 }
 
 // Generate QR Code and trigger download
@@ -375,14 +392,33 @@ if (libraryIdNo && token) {
     if (userData && userData.token === token) {
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
       document.querySelector(".gender select").value = userData.gender;
-      departmentSelect.value = userData.department;
-      courseSelect.value = userData.course;
-      majorSelect.value = userData.major;
-      gradeSelect.value = userData.grade;
-      strandSelect.value = userData.strand;
-      document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value = userData.schoolYear;
-      document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value = userData.semester;
+      document.getElementById("library-id").value = userData.libraryIdNo;
+      document.getElementById("department-select").value = userData.department;
+      updateCourses(userData.department).then(() => {
+        document.getElementById("course-select").value = userData.course;
+        updateMajors(userData.course, userData.department).then(() => {
+          document.getElementById("major-select").value = userData.major;
+        });
+      });
+      document.getElementById("grade-select").value = userData.grade;
+      document.getElementById("strand-select").value = userData.strand;
+      document.getElementById("year-select").value = userData.schoolYear;
+      document.getElementById("semester-select").value = userData.semester;
+
+      // Hide or show fields based on department
+      if (userData.department === "shs") {
+        document.querySelector(".course-input").style.display = "none";
+        document.querySelector(".year-input").style.display = "none";
+        document.querySelector(".grade-input").style.display = "block";
+        document.querySelector(".strand-input").style.display = "block";
+      } else {
+        document.querySelector(".course-input").style.display = "block";
+        document.querySelector(".year-input").style.display = "block";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
+      }
     } else {
       alert("Invalid token.");
     }

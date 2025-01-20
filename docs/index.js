@@ -183,10 +183,13 @@ function updateCourses(department) {
         option.textContent = course;
         courseSelect.appendChild(option);
       }
+    } else {
+      console.warn(`No courses found for department: ${department}`);
     }
     resolve();
   });
 }
+
 
 function updateMajors(course, department) {
   return new Promise((resolve) => {
@@ -200,11 +203,16 @@ function updateMajors(course, department) {
           option.textContent = major;
           majorSelect.appendChild(option);
         });
+      } else {
+        console.warn(`No majors found for course: ${course}`);
       }
+    } else {
+      console.warn(`Invalid course (${course}) or department (${department}).`);
     }
     resolve();
   });
 }
+
 
 // Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {
@@ -405,9 +413,9 @@ if (libraryIdNo && token) {
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
       updateCourses(userData.department).then(() => {
-        document.getElementById("course-select").value = userData.course;
+        courseSelect.value = userData.course;
         updateMajors(userData.course, userData.department).then(() => {
-          document.getElementById("major-select").value = userData.major;
+          majorSelect.value = userData.major;
         });
       });
       document.getElementById("grade-select").value = userData.grade;

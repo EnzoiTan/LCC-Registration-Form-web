@@ -331,11 +331,6 @@ async function fetchUserData(libraryId) {
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 
-  if (!userDataDiv) {
-    console.error("Element with ID 'user-data' not found.");
-    return;
-  }
-
   // Update courses and majors based on department and course
   await updateCourses(userData.department);
   document.getElementById("course-select").value = userData.course;

@@ -2,6 +2,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebas
 import { getFirestore, doc, getDoc, getDocs, setDoc, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Firebase configuration
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCKlyckfCUI_Ooc8XiSziJ-iaKR1cbw85I",
   authDomain: "lcc-lidc.firebaseapp.com",
@@ -16,6 +20,62 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+if (libraryIdNo && token) {
+  // Fetch student data from Firebase
+  fetchUserData(libraryIdNo).then((userData) => {
+    if (userData && userData.token === token) {
+      document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+      document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
+      document.querySelector(".gender select").value = userData.gender;
+      document.getElementById("library-id").value = userData.libraryIdNo;
+      document.getElementById("department-select").value = userData.department;
+      document.getElementById("course-select").value = userData.course;
+      document.getElementById("major-select").value = userData.major;
+      document.getElementById("grade-select").value = userData.grade;
+      document.getElementById("strand-select").value = userData.strand;
+      document.getElementById("year-select").value = userData.schoolYear;
+      document.getElementById("semester-select").value = userData.semester;
+
+      // Hide or show fields based on department
+      if (userData.department === "shs") {
+        document.querySelector(".course-input").style.display = "none";
+        document.querySelector(".major-input").style.display = "none";
+        document.querySelector(".grade-input").style.display = "block";
+        document.querySelector(".strand-input").style.display = "block";
+      } else {
+        document.querySelector(".course-input").style.display = "block";
+        document.querySelector(".major-input").style.display = "block";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
+      }
+    }
+  }).catch((error) => {
+    console.error("Error fetching document:", error);
+  });
+}
+
+async function fetchUserData(libraryId) {
+  try {
+    // Reference to the user document in Firestore
+    const userRef = doc(db, "LIDC_Users", libraryId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      // Get data from the document
+      const userData = docSnap.data();
+      console.log("User data fetched: ", userData);
+      return userData;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user data: ", error);
+    return null;
+  }
+}
 
 const departmentCourses = {
   cics: {
@@ -330,11 +390,6 @@ async function fetchUserData(libraryId) {
 
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
-
-  if (!userDataDiv) {
-    console.error("Element with ID 'user-data' not found.");
-    return;
-  }
 
   // Update courses and majors based on department and course
   await updateCourses(userData.department);

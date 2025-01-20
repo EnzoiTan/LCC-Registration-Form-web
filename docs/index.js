@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -394,25 +394,28 @@ if (libraryIdNo && token) {
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
       document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
       document.querySelector(".gender select").value = userData.gender;
-      departmentSelect.value = userData.department;
-      courseSelect.value = userData.course;
-      majorSelect.value = userData.major;
-      gradeSelect.value = userData.grade;
-      strandSelect.value = userData.strand;
-      document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value = userData.schoolYear;
-      document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value = userData.semester;
+      document.getElementById("library-id").value = userData.libraryIdNo;
+      document.getElementById("department-select").value = userData.department;
+      updateCourses(userData.department); // Update courses based on department
+      document.getElementById("course-select").value = userData.course;
+      updateMajors(userData.course, userData.department); // Update majors based on course and department
+      document.getElementById("major-select").value = userData.major;
+      document.getElementById("grade-select").value = userData.grade;
+      document.getElementById("strand-select").value = userData.strand;
+      document.getElementById("year-select").value = userData.schoolYear;
+      document.getElementById("semester-select").value = userData.semester;
 
       // Hide or show fields based on department
       if (userData.department === "shs") {
-        gradeInputDiv.style.display = "block";
-        strandInputDiv.style.display = "block";
-        courseInputDiv.style.display = "none";
-        majorInputDiv.style.display = "none";
+        document.querySelector(".course-input").style.display = "none";
+        document.querySelector(".year-input").style.display = "none";
+        document.querySelector(".grade-input").style.display = "block";
+        document.querySelector(".strand-input").style.display = "block";
       } else {
-        gradeInputDiv.style.display = "none";
-        strandInputDiv.style.display = "none";
-        courseInputDiv.style.display = "block";
-        majorInputDiv.style.display = "block";
+        document.querySelector(".course-input").style.display = "block";
+        document.querySelector(".year-input").style.display = "block";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
       }
     } else {
       alert("Invalid token.");

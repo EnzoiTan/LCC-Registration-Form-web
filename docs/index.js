@@ -1,4 +1,3 @@
-// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -27,18 +26,9 @@ const departmentCourses = {
   },
   cte: {
     courses: {
-      "Bachelor of Elementary Education": [
-        "None",
-      ],
-      "Bachelor of Technology and Livelihood Education": [
-        "Home Economics",
-        "Industrial Arts",
-        "Information Communications Technology (ICT)",
-      ],
-      "Bachelor of Secondary Education": [
-        "English",
-        "Mathematics",
-      ],
+      "Bachelor of Elementary Education": ["None"],
+      "Bachelor of Technology and Livelihood Education": ["Home Economics", "Industrial Arts", "Information Communications Technology (ICT)"],
+      "Bachelor of Secondary Education": ["English", "Mathematics"],
       "Bachelor of Technical Vocational Education": [
         "Automotive Technology",
         "Civil and Construction Technology",
@@ -51,15 +41,12 @@ const departmentCourses = {
         "Mechanical Technology",
         "Welding and Fabrication Technology",
       ],
-
-      "Professional Education Certificate": [
-        "None",
-      ],
+      "Professional Education Certificate": ["None"],
     },
   },
   cet: {
     courses: {
-        "BS Industrial Technology": [
+      "BS Industrial Technology": [
         "Architectural Drafting Technology",
         "Civil Technology",
         "Food Technology",
@@ -67,27 +54,13 @@ const departmentCourses = {
         "Mechatronics Technology",
         "Power Plant Engineering Technology",
       ],
-      "BS Automotive Technology": [
-        "None",
-      ],
-      "BS Electrical Technology": [
-        "None",
-      ],
-      "BS Electronics Technology": [
-        "None",
-      ],
-      "BS Mechanical Technology": [
-        "None",
-      ],
-      "BS Refrigeration and Air Conditioning Technology": [
-        "None",
-      ],
-      "BS Computer Technology": [
-        "None",
-      ],
-      "BS Civil Engineering": [
-        "None",
-      ],
+      "BS Automotive Technology": ["None"],
+      "BS Electrical Technology": ["None"],
+      "BS Electronics Technology": ["None"],
+      "BS Mechanical Technology": ["None"],
+      "BS Refrigeration and Air Conditioning Technology": ["None"],
+      "BS Computer Technology": ["None"],
+      "BS Civil Engineering": ["None"],
       "Bachelor of Industrial Technology": [
         "Automotive Technology",
         "Apparel and Fashion Technology",
@@ -114,7 +87,7 @@ const departmentCourses = {
     courses: {
       "BS Marine Engineering": ["None"],
     },
-  },                           
+  },
   cpes: {
     courses: {
       "Bachelor of Physical Education": ["None"],
@@ -123,63 +96,43 @@ const departmentCourses = {
   },
   ite: {
     courses: {
-        "Diploma of Technology": [
-          "Automotive Engineering Technology",
-          "Civil Engineering Technology",
-          "Electrical Engineering Technology",
-          "Electronics, Communication Technology",
-          "Food Production & Services Management Technology",
-          "Garments, Fashion & Design Technology",
-          "Hospitality Management Technology",
-          "Information Technology",
-          "Mechanical Engineering Technology",
-        ],
-        "3-Year Trade Industrial Technical Education": [
-          "Civil Technology",
-          "Mechanical Technology",
-          "Welding & Fabrication Technology",
-        ],
-        "Associate in Industrial Technology": [
-          "Auto Technology",
-          "Electrical Technology",
-          "Electronics Technology",
-          "Food Technology",
-          "Garments & Textile Technology",
-          "Refrigeration and Air Conditioning Technology",
-        ],
-        "2-Year Trade Technical Education Curriculum": [
-          "Technical Drafting Technology",
-        ],
+      "Diploma of Technology": [
+        "Automotive Engineering Technology",
+        "Civil Engineering Technology",
+        "Electrical Engineering Technology",
+        "Electronics, Communication Technology",
+        "Food Production & Services Management Technology",
+        "Garments, Fashion & Design Technology",
+        "Hospitality Management Technology",
+        "Information Technology",
+        "Mechanical Engineering Technology",
+      ],
+      "3-Year Trade Industrial Technical Education": ["Civil Technology", "Mechanical Technology", "Welding & Fabrication Technology"],
+      "Associate in Industrial Technology": [
+        "Auto Technology",
+        "Electrical Technology",
+        "Electronics Technology",
+        "Food Technology",
+        "Garments & Textile Technology",
+        "Refrigeration and Air Conditioning Technology",
+      ],
+      "2-Year Trade Technical Education Curriculum": ["Technical Drafting Technology"],
     },
   },
   shs: {
     courses: {
-      "BS Development Communication": ["None"],
-      "Bachelor of Fine Arts": ["None"],
-      "Batsilyer ng Sining sa Filipino (BATSIFIL)": ["None"],
+      "Grade 11": ["None"],
+      "Grade 12": ["None"],
     },
   },
   gs: {
     courses: {
       "Doctor of Philosophy": ["Technology Management"],
-      "Doctor of Education": [
-        "Educational Administration and Supervision",
-        "Learning and Instruction",
-        "Curriculum Instruction",
-      ],
+      "Doctor of Education": ["Educational Administration and Supervision", "Learning and Instruction", "Curriculum Instruction"],
       "Doctor of Technology Education": ["None"],
-      "Master of Arts in Teaching Vocational Education": [
-        "Technology and Livelihood Education",
-        "Home Economics",
-      ],
-      "Master of Arts in Education": [
-        "Educational Administration and Supervision",
-        "Curriculum and Instructional Development",
-        "Mathematics",
-      ],
-      "Master of Technology Education": [
-        "None",
-      ],
+      "Master of Arts in Teaching Vocational Education": ["Technology and Livelihood Education", "Home Economics"],
+      "Master of Arts in Education": ["Educational Administration and Supervision", "Curriculum and Instructional Development", "Mathematics"],
+      "Master of Technology Education": ["None"],
     },
   },
 };
@@ -188,14 +141,41 @@ const departmentCourses = {
 const departmentSelect = document.getElementById("department-select");
 const courseSelect = document.getElementById("course-select");
 const majorSelect = document.getElementById("major-select");
+const gradeSelect = document.getElementById("grade-select");
+const strandSelect = document.getElementById("strand-select");
+const gradeInputDiv = document.querySelector(".grade-input");
+const courseInputDiv = document.querySelector(".course-input");
+const majorInputDiv = document.querySelector(".year-input");
+const strandInputDiv = document.querySelector(".strand-input");
+const submitButton = document.querySelector(".submit");
 const libraryIdInput = document.getElementById("library-id");
 const validUntilInput = document.getElementById("valid-until");
 
-// Populate Courses and Majors Based on Selection
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
   updateCourses(selectedDepartment);
   updateMajors(null); // Clear majors
+
+  if (selectedDepartment === "shs") {
+    gradeInputDiv.style.display = "block";
+    strandInputDiv.style.display = "block";
+    courseInputDiv.style.display = "none";
+    majorInputDiv.style.display = "none";
+  } else {
+    gradeInputDiv.style.display = "none";
+    strandInputDiv.style.display = "none";
+    courseInputDiv.style.display = "block";
+    majorInputDiv.style.display = "block";
+  }
+});
+
+gradeSelect.addEventListener("change", () => {
+  const selectedGrade = gradeSelect.value;
+  if (selectedGrade) {
+    strandInputDiv.style.display = "block";
+  } else {
+    strandInputDiv.style.display = "none";
+  }
 });
 
 courseSelect.addEventListener("change", () => {
@@ -232,11 +212,18 @@ function updateMajors(course, department) {
   }
 }
 
+// Generate Random Token
+function generateRandomToken() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 16; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return token;
+}
+
 // Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {
-  const libraryIdInput = document.getElementById("library-id");
-  const validUntilInput = document.getElementById("valid-until");
-
   if (!libraryIdInput || !validUntilInput) {
     console.error("One or more required DOM elements are missing.");
     return;
@@ -266,28 +253,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   validUntilInput.value = "July 2025";
 });
 
-// Generate Random Token
-function generateRandomToken() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 16; i++) {
-    token += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return token;
-}
+// Handle form submission
+submitButton.addEventListener("click", async (event) => {
+  event.preventDefault();
 
-// Submit Form
-document.querySelector(".submit").addEventListener("click", async () => {
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
   const gender = document.querySelector(".gender select").value.trim();
   const department = departmentSelect.value.trim();
   const course = courseSelect.value.trim();
   const major = majorSelect.value.trim();
+  const grade = gradeSelect.value.trim();
+  const strand = strandSelect.value.trim();
   const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
   const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
-  if (!lastName || !firstName || !gender || !department || !course || !major || !schoolYear || !semester) {
+  if (!lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
     alert("Please fill out all required fields before submitting.");
     return;
   }
@@ -299,8 +280,10 @@ document.querySelector(".submit").addEventListener("click", async () => {
     firstName,
     gender,
     department,
-    course,
-    major,
+    course: department === "shs" ? "" : course,
+    major: department === "shs" ? "" : major,
+    grade: department === "shs" ? grade : "",
+    strand: department === "shs" ? strand : "",
     schoolYear,
     semester,
     timesEntered: 0,

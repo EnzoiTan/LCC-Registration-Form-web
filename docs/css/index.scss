@@ -137,6 +137,26 @@ body{
         }
       }
 
+        .uniform-width {
+      width: 100%; // Adjust the width as needed
+      max-width: 300px; // Optional: set a maximum width
+      box-sizing: border-box; // Ensure padding and border are included in the width
+    }
+    
+    .shs-selection {
+      display: flex;
+      gap: 20px;
+    
+      .data-input {
+        flex: 1;
+      }
+    }
+    
+    .year-sem-inputs {
+      display: flex;
+      gap: 20px;
+    }
+
     .year-sem-inputs {
         display: flex;
         gap: 20px;
@@ -186,6 +206,8 @@ body{
         height: 32px;
         padding: 5px 10px 5px 10px;
     }
+
+    
 
     select{
         border: grey solid 1px;

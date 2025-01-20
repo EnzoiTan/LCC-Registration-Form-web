@@ -120,6 +120,25 @@ body {
   border-radius: 3px;
 }
 
+.uniform-width {
+  width: 100%;
+  max-width: 300px;
+  box-sizing: border-box;
+}
+
+.shs-selection {
+  display: flex;
+  gap: 20px;
+}
+.shs-selection .data-input {
+  flex: 1;
+}
+
+.year-sem-inputs {
+  display: flex;
+  gap: 20px;
+}
+
 .year-sem-inputs {
   display: flex;
   gap: 20px;

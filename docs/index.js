@@ -158,7 +158,6 @@ departmentSelect.addEventListener("change", () => {
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
     majorInputDiv.style.display = "none";
-    majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>'; // Clear majors
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
@@ -167,19 +166,11 @@ departmentSelect.addEventListener("change", () => {
   }
 });
 
-
 courseSelect.addEventListener("change", () => {
   const selectedCourse = courseSelect.value;
   const selectedDepartment = departmentSelect.value;
-
-  if (selectedDepartment !== "shs") {
-    updateMajors(selectedCourse, selectedDepartment);
-  } else {
-    // Clear majors if the department is SHS
-    majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
-  }
+  updateMajors(selectedCourse, selectedDepartment);
 });
-
 
 function updateCourses(department) {
   return new Promise((resolve) => {
@@ -203,12 +194,6 @@ function updateCourses(department) {
 function updateMajors(course, department) {
   return new Promise((resolve) => {
     majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
-    if (department === "shs") {
-      // SHS doesn't have majors
-      resolve();
-      return;
-    }
-
     if (course && department && departmentCourses[department]) {
       const majors = departmentCourses[department].courses[course];
       if (majors) {
@@ -227,7 +212,6 @@ function updateMajors(course, department) {
     resolve();
   });
 }
-
 
 
 // Autofill Library ID and Valid Until Date
@@ -423,10 +407,17 @@ if (libraryIdNo && token) {
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
+      // updateCourses(userData.department).then(() => {
+      //   courseSelect.value = userData.course;
+      //   updateMajors(userData.course, userData.department).then(() => {
+      //     majorSelect.value = userData.major;
+      //   });
+      // });
+
       updateCourses(userData.department).then(() => {
-        courseSelect.value = userData.course;
+        document.getElementById("course-select").value = userData.course;
         updateMajors(userData.course, userData.department).then(() => {
-          majorSelect.value = userData.major;
+          document.getElementById("major-select").value = userData.major;
         });
       });
       document.getElementById("grade-select").value = userData.grade;

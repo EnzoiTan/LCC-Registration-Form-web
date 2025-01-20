@@ -328,8 +328,8 @@ function displayUserData(userData) {
     <p>Library ID: ${userData.libraryIdNo}</p>
     <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.course}</p>
-    <p>Major: ${userData.major}</p>
+    <p>Course: ${userData.firstName}</p>
+    <p>Major: ${userData.lastName}</p>
     <p>Grade: ${userData.grade}</p>
     <p>Strand: ${userData.strand}</p>
     <p>School Year: ${userData.schoolYear}</p>

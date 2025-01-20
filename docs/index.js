@@ -144,7 +144,7 @@ async function fetchUserData(libraryId) {
   }
 }
 
-function displayUserData(userData) {
+async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 
   if (!userDataDiv) {
@@ -152,6 +152,13 @@ function displayUserData(userData) {
     return;
   }
 
+  // Update courses and majors based on department and course
+  await updateCourses(userData.department);
+  document.getElementById("course-select").value = userData.course;
+  await updateMajors(userData.course, userData.department);
+  document.getElementById("major-select").value = userData.major;
+
+  // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
     <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
@@ -166,7 +173,6 @@ function displayUserData(userData) {
     <p>Token: ${userData.token}</p>
   `;
 
-
   // Hide or show fields based on department
   if (userData.department === "shs") {
     document.querySelector(".course-input").style.display = "none";
@@ -179,6 +185,42 @@ function displayUserData(userData) {
     document.querySelector(".grade-input").style.display = "none";
     document.querySelector(".strand-input").style.display = "none";
   }
+}
+
+function updateCourses(department) {
+  return new Promise((resolve) => {
+    const courseSelect = document.getElementById("course-select");
+    courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
+    if (department && departmentCourses[department]) {
+      const courses = departmentCourses[department].courses;
+      for (const course in courses) {
+        const option = document.createElement("option");
+        option.value = course;
+        option.textContent = course;
+        courseSelect.appendChild(option);
+      }
+    }
+    resolve();
+  });
+}
+
+function updateMajors(course, department) {
+  return new Promise((resolve) => {
+    const majorSelect = document.getElementById("major-select");
+    majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
+    if (course && department && departmentCourses[department]) {
+      const majors = departmentCourses[department].courses[course];
+      if (majors) {
+        majors.forEach((major) => {
+          const option = document.createElement("option");
+          option.value = major;
+          option.textContent = major;
+          majorSelect.appendChild(option);
+        });
+      }
+    }
+    resolve();
+  });
 }
 
 // Generate QR Code and trigger download

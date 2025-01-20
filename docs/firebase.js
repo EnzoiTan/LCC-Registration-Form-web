@@ -28,6 +28,7 @@ if (libraryIdNo && token) {
     if (userData && userData.token === token) {
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("department-select").value = userData.department;
       document.getElementById("course-select").value = userData.course;
@@ -36,6 +37,19 @@ if (libraryIdNo && token) {
       document.getElementById("strand-select").value = userData.strand;
       document.getElementById("year-select").value = userData.schoolYear;
       document.getElementById("semester-select").value = userData.semester;
+
+      // Hide or show fields based on department
+      if (userData.department === "shs") {
+        document.querySelector(".course-input").style.display = "none";
+        document.querySelector(".year-input").style.display = "none";
+        document.querySelector(".grade-input").style.display = "block";
+        document.querySelector(".strand-input").style.display = "block";
+      } else {
+        document.querySelector(".course-input").style.display = "block";
+        document.querySelector(".year-input").style.display = "block";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
+      }
     } else {
       alert("Invalid token.");
     }

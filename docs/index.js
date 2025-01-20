@@ -288,7 +288,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
 
   try {
     const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-    await setDoc(userRef, newEntry);
+    await getDoc(userRef, newEntry);
     alert("Data successfully submitted!");
     generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
     window.location.reload();
@@ -372,7 +372,7 @@ async function generateQRCodeAndDownload(newEntry) {
     try {
       // Save the full QR code link (URL) to Firestore
       const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-      await setDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true }); // Save the full QR code URL
+      await getDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true }); // Save the full QR code URL
 
       console.log("Full QR code URL saved to Firestore.");
     } catch (error) {

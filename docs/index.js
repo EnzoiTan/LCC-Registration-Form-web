@@ -323,13 +323,18 @@ function displayUserData(userData) {
   // Example of how to display fetched data in HTML
   const userDataDiv = document.getElementById("user-data");
 
+  if (!userDataDiv) {
+    console.error("Element with ID 'user-data' not found.");
+    return;
+  }
+
   // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
     <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.firstName}</p>
-    <p>Major: ${userData.lastName}</p>
+    <p>Course: ${userData.course}</p>
+    <p>Major: ${userData.major}</p>
     <p>Grade: ${userData.grade}</p>
     <p>Strand: ${userData.strand}</p>
     <p>School Year: ${userData.schoolYear}</p>
@@ -344,7 +349,7 @@ function displayUserData(userData) {
     document.querySelector(".year-input").style.display = "none";
     document.querySelector(".grade-input").style.display = "block";
     document.querySelector(".strand-input").style.display = "block"; 
-  } else if (userData.department === "cics, cet, cte, cme, gs, cahss, cpes, ite, sba") {
+  } else {
     document.querySelector(".course-input").style.display = "block";
     document.querySelector(".year-input").style.display = "block";
     document.querySelector(".grade-input").style.display = "none";
@@ -413,7 +418,7 @@ if (libraryIdNo && token) {
         document.querySelector(".year-input").style.display = "none";
         document.querySelector(".grade-input").style.display = "block";
         document.querySelector(".strand-input").style.display = "block";
-      } else if (userData.department === "cics, cet, cte, cme, gs, cahss, cpes, ite, sba") {
+      } else {
         document.querySelector(".course-input").style.display = "block";
         document.querySelector(".year-input").style.display = "block";
         document.querySelector(".grade-input").style.display = "none";

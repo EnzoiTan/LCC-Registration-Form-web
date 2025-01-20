@@ -121,8 +121,8 @@ const departmentCourses = {
   },
   shs: {
     courses: {
-      "Grade 11": ["None"],
-      "Grade 12": ["None"],
+      "Grade 11": ["N/A"],
+      "Grade 12": ["N/A"],
     },
   },
   gs: {

@@ -158,6 +158,7 @@ departmentSelect.addEventListener("change", () => {
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
     majorInputDiv.style.display = "none";
+    majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>'; // Clear majors
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
@@ -166,11 +167,19 @@ departmentSelect.addEventListener("change", () => {
   }
 });
 
+
 courseSelect.addEventListener("change", () => {
   const selectedCourse = courseSelect.value;
   const selectedDepartment = departmentSelect.value;
-  updateMajors(selectedCourse, selectedDepartment);
+
+  if (selectedDepartment !== "shs") {
+    updateMajors(selectedCourse, selectedDepartment);
+  } else {
+    // Clear majors if the department is SHS
+    majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
+  }
 });
+
 
 function updateCourses(department) {
   return new Promise((resolve) => {
@@ -194,6 +203,12 @@ function updateCourses(department) {
 function updateMajors(course, department) {
   return new Promise((resolve) => {
     majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
+    if (department === "shs") {
+      // SHS doesn't have majors
+      resolve();
+      return;
+    }
+
     if (course && department && departmentCourses[department]) {
       const majors = departmentCourses[department].courses[course];
       if (majors) {
@@ -212,6 +227,7 @@ function updateMajors(course, department) {
     resolve();
   });
 }
+
 
 
 // Autofill Library ID and Valid Until Date

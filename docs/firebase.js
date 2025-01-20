@@ -22,26 +22,33 @@ const urlParams = new URLSearchParams(window.location.search);
 const libraryIdNo = urlParams.get('libraryIdNo');
 const token = urlParams.get('token');
 
-if (libraryIdNo && token) {
-  // Fetch student data from Firebase
-  fetchUserData(libraryIdNo).then((userData) => {
-    if (userData && userData.token === token) {
-      document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
-      document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
-      document.querySelector(".gender select").value = userData.gender;
-      document.getElementById("department-select").value = userData.department;
-      document.getElementById("course-select").value = userData.course;
-      document.getElementById("major-select").value = userData.major;
-      document.getElementById("grade-select").value = userData.grade;
-      document.getElementById("strand-select").value = userData.strand;
-      document.getElementById("year-select").value = userData.schoolYear;
-      document.getElementById("semester-select").value = userData.semester;
-    } else {
-      alert("Invalid token.");
-    }
-  }).catch((error) => {
-    console.error("Error fetching document:", error);
-  });
+if (userData && userData.token === token) {
+  document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+  document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+  document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
+  document.querySelector(".gender select").value = userData.gender;
+  document.getElementById("department-select").value = userData.department;
+  document.getElementById("course-select").value = userData.course;
+  document.getElementById("major-select").value = userData.major;
+  document.getElementById("grade-select").value = userData.grade;
+  document.getElementById("strand-select").value = userData.strand;
+  document.getElementById("year-select").value = userData.schoolYear;
+  document.getElementById("semester-select").value = userData.semester;
+
+  // Hide or show fields based on department
+  if (userData.department === "shs") {
+    document.querySelector(".course-input").style.display = "none";
+    document.querySelector(".year-input").style.display = "none";
+    document.querySelector(".grade-input").style.display = "block";
+    document.querySelector(".strand-input").style.display = "block";
+  } else {
+    document.querySelector(".course-input").style.display = "block";
+    document.querySelector(".year-input").style.display = "block";
+    document.querySelector(".grade-input").style.display = "none";
+    document.querySelector(".strand-input").style.display = "none";
+  }
+} else {
+  alert("Invalid token.");
 }
 
 async function fetchUserData(libraryId) {

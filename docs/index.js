@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, getDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, getDocs, setDoc, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -288,7 +288,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
 
   try {
     const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-    await getDoc(userRef, newEntry);
+    await setDoc(userRef, newEntry);
     alert("Data successfully submitted!");
     generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
     window.location.reload();
@@ -372,7 +372,7 @@ async function generateQRCodeAndDownload(newEntry) {
     try {
       // Save the full QR code link (URL) to Firestore
       const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-      await getDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true }); // Save the full QR code URL
+      await setDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true }); // Save the full QR code URL
 
       console.log("Full QR code URL saved to Firestore.");
     } catch (error) {
@@ -396,10 +396,12 @@ if (libraryIdNo && token) {
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
-      updateCourses(userData.department); // Update courses based on department
-      document.getElementById("course-select").value = userData.course;
-      updateMajors(userData.course, userData.department); // Update majors based on course and department
-      document.getElementById("major-select").value = userData.major;
+      updateCourses(userData.department).then(() => {
+        document.getElementById("course-select").value = userData.course;
+        updateMajors(userData.course, userData.department).then(() => {
+          document.getElementById("major-select").value = userData.major;
+        });
+      });
       document.getElementById("grade-select").value = userData.grade;
       document.getElementById("strand-select").value = userData.strand;
       document.getElementById("year-select").value = userData.schoolYear;

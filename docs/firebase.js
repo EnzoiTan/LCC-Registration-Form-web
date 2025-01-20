@@ -17,6 +17,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Handle URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const libraryIdNo = urlParams.get('libraryIdNo');
+const token = urlParams.get('token');
+
+if (libraryIdNo && token) {
+  // Fetch student data from Firebase
+  fetchUserData(libraryIdNo).then((userData) => {
+    if (userData && userData.token === token) {
+      document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+      document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".gender select").value = userData.gender;
+      document.getElementById("department-select").value = userData.department;
+      document.getElementById("course-select").value = userData.course;
+      document.getElementById("major-select").value = userData.major;
+      document.getElementById("grade-select").value = userData.grade;
+      document.getElementById("strand-select").value = userData.strand;
+      document.getElementById("year-select").value = userData.schoolYear;
+      document.getElementById("semester-select").value = userData.semester;
+    } else {
+      alert("Invalid token.");
+    }
+  }).catch((error) => {
+    console.error("Error fetching document:", error);
+  });
+}
+
 async function fetchUserData(libraryId) {
   try {
     // Reference to the user document in Firestore
@@ -35,35 +62,5 @@ async function fetchUserData(libraryId) {
   } catch (error) {
     console.error("Error fetching user data: ", error);
     return null;
-  }
-}
-
-async function updateCourses(department) {
-  const courseSelect = document.getElementById("course-select");
-  courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
-  if (department && departmentCourses[department]) {
-    const courses = departmentCourses[department].courses;
-    for (const course in courses) {
-      const option = document.createElement("option");
-      option.value = course;
-      option.textContent = course;
-      courseSelect.appendChild(option);
-    }
-  }
-}
-
-async function updateMajors(course, department) {
-  const majorSelect = document.getElementById("major-select");
-  majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
-  if (course && department && departmentCourses[department]) {
-    const majors = departmentCourses[department].courses[course];
-    if (majors) {
-      majors.forEach((major) => {
-        const option = document.createElement("option");
-        option.value = major;
-        option.textContent = major;
-        majorSelect.appendChild(option);
-      });
-    }
   }
 }

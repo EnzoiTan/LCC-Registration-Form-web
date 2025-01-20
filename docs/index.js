@@ -253,6 +253,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
 
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
+  const middleInitial = document.querySelector(".name-inputs .data-input:nth-child(3) input").value.trim();
   const gender = document.querySelector(".gender select").value.trim();
   const department = departmentSelect.value.trim();
   const course = courseSelect.value.trim();
@@ -272,6 +273,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     validUntil: validUntilInput.value.trim(),
     lastName,
     firstName,
+    middleInitial,
     gender,
     department,
     course: department === "shs" ? "" : course,
@@ -324,15 +326,30 @@ function displayUserData(userData) {
   // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Name: ${userData.firstName} ${userData.lastName}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
     <p>Course: ${userData.course}</p>
     <p>Major: ${userData.major}</p>
+    <p>Grade: ${userData.grade}</p>
+    <p>Strand: ${userData.strand}</p>
     <p>School Year: ${userData.schoolYear}</p>
     <p>Semester: ${userData.semester}</p>
     <p>Valid Until: ${userData.validUntil}</p>
     <p>Token: ${userData.token}</p>
   `;
+
+  // Hide or show fields based on department
+  if (userData.department === "shs") {
+    document.querySelector(".course-input").style.display = "none";
+    document.querySelector(".year-input").style.display = "none";
+    document.querySelector(".grade-input").style.display = "block";
+    document.querySelector(".strand-input").style.display = "block";
+  } else {
+    document.querySelector(".course-input").style.display = "block";
+    document.querySelector(".year-input").style.display = "block";
+    document.querySelector(".grade-input").style.display = "none";
+    document.querySelector(".strand-input").style.display = "none";
+  }
 }
 
 // Generate QR Code and trigger download
@@ -375,6 +392,7 @@ if (libraryIdNo && token) {
     if (userData && userData.token === token) {
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
       document.querySelector(".gender select").value = userData.gender;
       departmentSelect.value = userData.department;
       courseSelect.value = userData.course;
@@ -383,6 +401,19 @@ if (libraryIdNo && token) {
       strandSelect.value = userData.strand;
       document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value = userData.schoolYear;
       document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value = userData.semester;
+
+      // Hide or show fields based on department
+      if (userData.department === "shs") {
+        gradeInputDiv.style.display = "block";
+        strandInputDiv.style.display = "block";
+        courseInputDiv.style.display = "none";
+        majorInputDiv.style.display = "none";
+      } else {
+        gradeInputDiv.style.display = "none";
+        strandInputDiv.style.display = "none";
+        courseInputDiv.style.display = "block";
+        majorInputDiv.style.display = "block";
+      }
     } else {
       alert("Invalid token.");
     }

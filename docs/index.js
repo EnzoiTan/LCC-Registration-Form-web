@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -143,10 +143,8 @@ const courseSelect = document.getElementById("course-select");
 const majorSelect = document.getElementById("major-select");
 const gradeSelect = document.getElementById("grade-select");
 const strandSelect = document.getElementById("strand-select");
-const gradeInputDiv = document.querySelector(".grade-input");
-const courseInputDiv = document.querySelector(".course-input");
-const majorInputDiv = document.querySelector(".year-input");
-const strandInputDiv = document.querySelector(".strand-input");
+const libraryIdInput = document.getElementById("library-id");
+const validUntilInput = document.getElementById("valid-until");
 
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
@@ -202,9 +200,6 @@ function updateMajors(course, department) {
 
 // Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {
-  const libraryIdInput = document.getElementById("library-id");
-  const validUntilInput = document.getElementById("valid-until");
-
   if (!libraryIdInput || !validUntilInput) {
     console.error("One or more required DOM elements are missing.");
     return;
@@ -245,7 +240,9 @@ function generateRandomToken() {
 }
 
 // Submit Form
-document.querySelector(".submit").addEventListener("click", async () => {
+document.querySelector(".submit").addEventListener("click", async (event) => {
+  event.preventDefault();
+
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
   const gender = document.querySelector(".gender select").value.trim();
@@ -254,7 +251,7 @@ document.querySelector(".submit").addEventListener("click", async () => {
   const major = majorSelect.value.trim();
   const grade = gradeSelect.value.trim();
   const strand = strandSelect.value.trim();
-  const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
+  const schoolYear = document.getElementById("year-select").value.trim();
   const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
   if (!lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
@@ -291,47 +288,6 @@ document.querySelector(".submit").addEventListener("click", async () => {
   }
 });
 
-async function fetchUserData(libraryId) {
-  try {
-    // Reference to the user document in Firestore
-    const userRef = doc(db, "LIDC_Users", libraryId);
-    const docSnap = await getDoc(userRef);
-
-    if (docSnap.exists()) {
-      // Get data from the document
-      const userData = docSnap.data();
-      console.log("User data fetched: ", userData);
-
-      // Display data on the webpage
-      displayUserData(userData);
-    } else {
-      console.log("No such document!");
-    }
-  } catch (error) {
-    console.error("Error fetching user data: ", error);
-  }
-}
-
-function displayUserData(userData) {
-  // Example of how to display fetched data in HTML
-  const userDataDiv = document.getElementById("user-data");
-
-  // Display each field of the fetched user data
-  userDataDiv.innerHTML = `
-    <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Name: ${userData.firstName} ${userData.lastName}</p>
-    <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.course}</p>
-    <p>Major: ${userData.major}</p>
-    <p>School Year: ${userData.schoolYear}</p>
-    <p>Semester: ${userData.semester}</p>
-    <p>Valid Until: ${userData.validUntil}</p>
-    <p>Token: ${userData.token}</p>
-  `;
-}
-
-
-// Generate QR Code and trigger download
 async function generateQRCodeAndDownload(newEntry) {
   const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
 
@@ -358,4 +314,48 @@ async function generateQRCodeAndDownload(newEntry) {
       console.error("Error saving full QR code URL to Firestore:", error);
     }
   });
+}
+
+// Handle URL parameters
+if (libraryIdNo && token) {
+  // Fetch student data from Firebase
+  fetchUserData(libraryIdNo).then((userData) => {
+    if (userData && userData.token === token) {
+      document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+      document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".gender select").value = userData.gender;
+      departmentSelect.value = userData.department;
+      courseSelect.value = userData.course;
+      majorSelect.value = userData.major;
+      gradeSelect.value = userData.grade;
+      strandSelect.value = userData.strand;
+      document.getElementById("year-select").value = userData.schoolYear;
+      document.getElementById("semester-select").value = userData.semester;
+    } else {
+      alert("Invalid token.");
+    }
+  }).catch((error) => {
+    console.error("Error fetching document:", error);
+  });
+}
+
+async function fetchUserData(libraryId) {
+  try {
+    // Reference to the user document in Firestore
+    const userRef = doc(db, "LIDC_Users", libraryId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      // Get data from the document
+      const userData = docSnap.data();
+      console.log("User data fetched: ", userData);
+      return userData;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user data: ", error);
+    return null;
+  }
 }

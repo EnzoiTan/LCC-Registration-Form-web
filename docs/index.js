@@ -121,8 +121,8 @@ const departmentCourses = {
   },
   shs: {
     courses: {
-      "Grade 11": ["N/A"],
-      "Grade 12": ["N/A"],
+      "Grade 11": ["None"],
+      "Grade 12": ["None"],
     },
   },
   gs: {
@@ -413,7 +413,7 @@ if (libraryIdNo && token) {
         document.querySelector(".year-input").style.display = "none";
         document.querySelector(".grade-input").style.display = "block";
         document.querySelector(".strand-input").style.display = "block";
-      } else {
+      } else if (userData.department === "course") {
         document.querySelector(".course-input").style.display = "block";
         document.querySelector(".year-input").style.display = "block";
         document.querySelector(".grade-input").style.display = "none";

@@ -48,8 +48,8 @@ if (libraryIdNo && token) {
       } else {
         document.querySelector(".course-input").style.display = "block";
         document.querySelector(".year-input").style.display = "block";
-        document.querySelector(".course-input").style.display = "none";
-        document.querySelector(".major-input").style.display = "none";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
       }
     } else {
       alert("Invalid token.");

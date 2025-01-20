@@ -413,7 +413,7 @@ if (libraryIdNo && token) {
         document.querySelector(".year-input").style.display = "none";
         document.querySelector(".grade-input").style.display = "block";
         document.querySelector(".strand-input").style.display = "block";
-      } else if (userData.department === "course") {
+      } else if (userData.department === "cics, cet, cte, cme, gs, cahss, cpes, ite, sba") {
         document.querySelector(".course-input").style.display = "block";
         document.querySelector(".year-input").style.display = "block";
         document.querySelector(".grade-input").style.display = "none";

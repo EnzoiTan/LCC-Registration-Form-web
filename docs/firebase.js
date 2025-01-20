@@ -40,22 +40,17 @@ if (libraryIdNo && token) {
       document.getElementById("semester-select").value = userData.semester;
 
       // Hide or show fields based on department
-      if (selectedDepartment === "shs") {
-        gradeInputDiv.style.display = "block";
-        strandInputDiv.style.display = "block";
-        courseInputDiv.style.display = "none";
-        majorInputDiv.style.display = "none";
-    } else if (selectedDepartment === "college" || document.querySelector(`#department-select option[value="${selectedDepartment}"]`).dataset.college === "true") {
-        gradeInputDiv.style.display = "none";
-        strandInputDiv.style.display = "none";
-        courseInputDiv.style.display = "block";
-        majorInputDiv.style.display = "block";
-    } else {
-        gradeInputDiv.style.display = "none";
-        strandInputDiv.style.display = "none";
-        courseInputDiv.style.display = "block";
-        majorInputDiv.style.display = "block";
-    }
+      if (userData.department === "shs") {
+        document.querySelector(".course-input").style.display = "none";
+        document.querySelector(".year-input").style.display = "none";
+        document.querySelector(".grade-input").style.display = "block";
+        document.querySelector(".strand-input").style.display = "block";
+      } else {
+        document.querySelector(".course-input").style.display = "block";
+        document.querySelector(".year-input").style.display = "block";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
+      }
     } else {
       alert("Invalid token.");
     }

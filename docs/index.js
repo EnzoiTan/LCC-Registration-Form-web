@@ -427,8 +427,6 @@ if (libraryIdNo && token) {
         document.querySelector(".grade-input").style.display = "none";
         document.querySelector(".strand-input").style.display = "none";
       }
-    } else {
-      alert("Invalid token.");
     }
   }).catch((error) => {
     console.error("Error fetching document:", error);

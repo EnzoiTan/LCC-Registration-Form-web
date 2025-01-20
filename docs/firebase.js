@@ -1,24 +1,66 @@
-// Import Firebase functions
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Firebase config object (replace with your own Firebase project settings)
+// Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCKlyckfCUI_Ooc8XiSziJ-iaKR1cbw85I",
-    authDomain: "lcc-lidc.firebaseapp.com",
-    databaseURL: "https://lcc-lidc-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "lcc-lidc",
-    storageBucket: "lcc-lidc.firebasestorage.app",
-    messagingSenderId: "934783227135",
-    appId: "1:934783227135:web:4b85df00c1186c8d5fe8ca",
-    measurementId: "G-S3X4YSV65S"
-  };
+  apiKey: "AIzaSyCKlyckfCUI_Ooc8XiSziJ-iaKR1cbw85I",
+  authDomain: "lcc-lidc.firebaseapp.com",
+  databaseURL: "https://lcc-lidc-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "lcc-lidc",
+  storageBucket: "lcc-lidc.firebasestorage.app",
+  messagingSenderId: "934783227135",
+  appId: "1:934783227135:web:4b85df00c1186c8d5fe8ca",
+  measurementId: "G-S3X4YSV65S"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firestore
 const db = getFirestore(app);
 
-// Export Firestore and other services if needed
-export { db };
+// Handle URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const libraryIdNo = urlParams.get('libraryIdNo');
+const token = urlParams.get('token');
+
+if (libraryIdNo && token) {
+  // Fetch student data from Firebase
+  fetchUserData(libraryIdNo).then((userData) => {
+    if (userData && userData.token === token) {
+      document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+      document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+      document.querySelector(".gender select").value = userData.gender;
+      document.getElementById("department-select").value = userData.department;
+      document.getElementById("course-select").value = userData.course;
+      document.getElementById("major-select").value = userData.major;
+      document.getElementById("grade-select").value = userData.grade;
+      document.getElementById("strand-select").value = userData.strand;
+      document.getElementById("year-select").value = userData.schoolYear;
+      document.getElementById("semester-select").value = userData.semester;
+    } else {
+      alert("Invalid token.");
+    }
+  }).catch((error) => {
+    console.error("Error fetching document:", error);
+  });
+}
+
+async function fetchUserData(libraryId) {
+  try {
+    // Reference to the user document in Firestore
+    const userRef = doc(db, "LIDC_Users", libraryId);
+    const docSnap = await getDoc(userRef);
+
+    if (docSnap.exists()) {
+      // Get data from the document
+      const userData = docSnap.data();
+      console.log("User data fetched: ", userData);
+      return userData;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user data: ", error);
+    return null;
+  }
+}

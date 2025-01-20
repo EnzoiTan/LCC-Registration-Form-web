@@ -147,9 +147,6 @@ const gradeInputDiv = document.querySelector(".grade-input");
 const courseInputDiv = document.querySelector(".course-input");
 const majorInputDiv = document.querySelector(".year-input");
 const strandInputDiv = document.querySelector(".strand-input");
-const submitButton = document.querySelector(".submit");
-const libraryIdInput = document.getElementById("library-id");
-const validUntilInput = document.getElementById("valid-until");
 
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
@@ -166,15 +163,6 @@ departmentSelect.addEventListener("change", () => {
     strandInputDiv.style.display = "none";
     courseInputDiv.style.display = "block";
     majorInputDiv.style.display = "block";
-  }
-});
-
-gradeSelect.addEventListener("change", () => {
-  const selectedGrade = gradeSelect.value;
-  if (selectedGrade) {
-    strandInputDiv.style.display = "block";
-  } else {
-    strandInputDiv.style.display = "none";
   }
 });
 
@@ -212,18 +200,11 @@ function updateMajors(course, department) {
   }
 }
 
-// Generate Random Token
-function generateRandomToken() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 16; i++) {
-    token += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return token;
-}
-
 // Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {
+  const libraryIdInput = document.getElementById("library-id");
+  const validUntilInput = document.getElementById("valid-until");
+
   if (!libraryIdInput || !validUntilInput) {
     console.error("One or more required DOM elements are missing.");
     return;
@@ -253,10 +234,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   validUntilInput.value = "July 2025";
 });
 
-// Handle form submission
-submitButton.addEventListener("click", async (event) => {
-  event.preventDefault();
+// Generate Random Token
+function generateRandomToken() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 16; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return token;
+}
 
+// Submit Form
+document.querySelector(".submit").addEventListener("click", async () => {
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
   const gender = document.querySelector(".gender select").value.trim();

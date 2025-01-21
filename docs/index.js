@@ -282,54 +282,35 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     return;
   }
 
-  const libraryIdNo = libraryIdInput.value.trim();
-  const validUntil = validUntilInput.value.trim();
+  const newEntry = {
+    libraryIdNo: libraryIdInput.value.trim(),
+    validUntil: validUntilInput.value.trim(),
+    lastName,
+    firstName,
+    middleInitial,
+    gender,
+    department,
+    course: department === "shs" ? "" : course,
+    major: department === "shs" ? "" : major,
+    grade: department === "shs" ? grade : "",
+    strand: department === "shs" ? strand : "",
+    schoolYear,
+    semester,
+    timesEntered: 0,
+    token: generateRandomToken(),  // Add the random token here
+  };
 
   try {
-    const userRef = doc(db, "LIDC_Users", libraryIdNo);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      // Update existing user: increment timesEntered
-      const userData = userSnap.data();
-      const updatedTimesEntered = (userData.timesEntered || 0) + 1;
-
-      await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
-      alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
-    } else {
-      // Create new user: download QR and set timesEntered to 1
-      const newEntry = {
-        libraryIdNo,
-        validUntil,
-        lastName,
-        firstName,
-        middleInitial,
-        gender,
-        department,
-        course: department === "shs" ? "" : course,
-        major: department === "shs" ? "" : major,
-        grade: department === "shs" ? grade : "",
-        strand: department === "shs" ? strand : "",
-        schoolYear,
-        semester,
-        timesEntered: 1,
-        token: generateRandomToken(),
-      };
-
-      await setDoc(userRef, newEntry);
-      alert("Data successfully submitted!");
-
-      // Generate QR code and download
-      await generateQRCodeAndDownload(newEntry);
-    }
-
+    const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
+    await setDoc(userRef, newEntry);
+    alert("Data successfully submitted!");
+    generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
     window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
   }
 });
-
 
 async function fetchUserData(libraryId) {
   try {

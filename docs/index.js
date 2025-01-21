@@ -145,7 +145,7 @@ const gradeSelect = document.getElementById("grade-select");
 const strandSelect = document.getElementById("strand-select");
 const gradeInputDiv = document.querySelector(".grade-input");
 const courseInputDiv = document.querySelector(".course-input");
-const yearInputDiv = document.querySelector(".year-input");
+const majorInputDiv = document.querySelector(".major-input");
 const strandInputDiv = document.querySelector(".strand-input");
 
 departmentSelect.addEventListener("change", () => {
@@ -157,12 +157,12 @@ departmentSelect.addEventListener("change", () => {
     gradeInputDiv.style.display = "block";
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
-    majorSelect.style.display = "none";
+    majorInputDiv.style.display = "none";
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
     courseInputDiv.style.display = "block";
-    majorSelect.style.display = "block";
+    majorInputDiv.style.display = "block";
   }
 });
 

@@ -338,6 +338,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
         semester,
         timesEntered: 1,
         token: generateRandomToken(),
+        timestamp: new Date()  // Store the timestamp when the user is first created
       };
 
       const qrCodeData = await generateQRCodeData(newEntry);

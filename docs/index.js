@@ -213,6 +213,12 @@ function updateMajors(course, department) {
   });
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const departmentSelect = document.getElementById('department-select');
+  const majorField = document.querySelector('.year-input'); // Major field wrapper
+  const strandField = document.querySelector('.strand-input'); // Strand field wrapper
+});
+
 
 // Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {

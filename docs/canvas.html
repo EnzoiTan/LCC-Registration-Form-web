@@ -5,7 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
   </head>
+  <canvas
+    id="userCanvas"
+    width="800"
+    height="400"
+    style="border: 1px solid black"
+  ></canvas>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       text-transform: uppercase;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -19,18 +30,42 @@
       justify-content: center;
       align-items: center;
       font-weight: bold;
+      text-shadow: black 0px -1px 4px 10px;
+      box-shadow: black 0px -1px 4px 10px;
     }
+
+    p {
+      transform: scaleY(1.2);
+    }
+
     .id-cover {
-      width: 550px;
-      height: 250px;
-      background-color: #8b2c2c;
+      width: 500px;
+      height: 240px;
       border-radius: 5px;
       display: flex;
     }
 
     .std-info {
       width: 70%;
-      padding: 10px;
+      padding: 20px;
+      background-color: #a12e2edc; /* Color above the image */
+      position: relative;
+      overflow: hidden;
+    }
+
+    .std-info::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 100%; /* Adjust the width of the image */
+      height: 100%;
+      transform: translateX(-50%); /* Center the image horizontally */
+      background-image: url("LCC-logo.png"); /* Replace with your image URL */
+      background-position: center;
+      background-size: contain; /* Ensure the image is resized while maintaining aspect ratio */
+      background-repeat: no-repeat;
+      z-index: -1; /* Ensure the image is below the content */
     }
 
     .qrcode {
@@ -45,20 +80,100 @@
       color: rgb(255, 255, 255);
       padding: 0;
       margin: 0;
-      font-size: 0.75em;
+      font-size: 0.67em;
     }
 
     .idaddr {
       color: rgb(255, 255, 255);
       padding: 0;
       margin: 0;
-      font-size: 0.6em;
+      font-size: 0.4em;
     }
 
     .lcc-title {
       color: #e1af19;
-      font-size: 0.9em;
+      font-size: 0.67em;
       font-weight: bold;
+    }
+
+    .id-details {
+      width: 100%;
+      display: flex;
+    }
+
+    .square {
+      width: 100%;
+      height: 100px;
+      background-color: #fff;
+    }
+
+    .id-pic {
+      width: 35%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .std-id-details {
+      padding: 0px 0px 0px 10px;
+      width: 65%;
+      transform: scaleY(0.92);
+      font-size: 0.5em;
+      color: #fff;
+      font-weight: 500;
+      margin: 0;
+
+      p {
+        margin: 0px 0px 5px 0px;
+      }
+    }
+
+    .below-id-info {
+      width: 65%;
+      font-size: 0.5em;
+      color: #fff;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .qrcode {
+      background-color: white;
+      width: 30%;
+      padding: 10px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .qrcode img {
+      width: 100%; /* Adjust the size of the QR code image */
+      max-width: 200px; /* Set a maximum width for the image */
+      margin-top: 20px;
+      margin-bottom: 40px;
+    }
+
+    .qrcode .name {
+      font-size: 0.5em;
+      font-weight: 700;
+      color: #000;
+      margin: 0;
+    }
+
+    .qrcode .title {
+      font-size: 0.1em;
+      color: #161616;
+      margin: 0;
+    }
+
+    .qrcode hr {
+      width: 80%;
+      border: none;
+      border-top: 1.5px solid #1d1d1d;
+      margin: 2px 0;
     }
   </style>
   <body>
@@ -69,8 +184,28 @@
         </p>
         <p class="idaddr">R.T. Lim blvd., baliwasan rd., zamboanga city</p>
         <p class="lcc-title">Learning Commons Center - library id</p>
+        <div class="id-details">
+          <div class="id-pic">
+            <div class="square"></div>
+          </div>
+          <div class="std-id-details">
+            <p>Name :</p>
+            <p>Department :</p>
+            <p>Course :</p>
+            <p>Major :</p>
+            <p>Semester :</p>
+            <p>S.Y. :</p>
+            <p>Valid Until :</p>
+          </div>
+        </div>
+        <p class="below-id-info">Library ID No :</p>
       </div>
-      <div class="qrcode"></div>
+      <div class="qrcode">
+        <img src="qr1.png" alt="QR Code" />
+        <p class="name">JENELEE PASTOR</p>
+        <hr />
+        <p class="title">Library Director</p>
+      </div>
     </div>
   </body>
 </html>

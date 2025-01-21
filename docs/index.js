@@ -145,7 +145,7 @@ const gradeSelect = document.getElementById("grade-select");
 const strandSelect = document.getElementById("strand-select");
 const gradeInputDiv = document.querySelector(".grade-input");
 const courseInputDiv = document.querySelector(".course-input");
-const majorInputDiv = document.querySelector(".year-input");
+const yearInputDiv = document.querySelector(".year-input");
 const strandInputDiv = document.querySelector(".strand-input");
 
 departmentSelect.addEventListener("change", () => {
@@ -157,12 +157,12 @@ departmentSelect.addEventListener("change", () => {
     gradeInputDiv.style.display = "block";
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
-    majorInputDiv.style.display = "none";
+    majorSelect.style.display = "none";
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
     courseInputDiv.style.display = "block";
-    majorInputDiv.style.display = "block";
+    majorSelect.style.display = "block";
   }
 });
 
@@ -321,7 +321,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
       await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
       alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
     } else {
-      // Create new user: download QR and set timesEntered to 1
+      // Create new user: generate and store QR code
       const newEntry = {
         libraryIdNo,
         validUntil,
@@ -340,11 +340,15 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
         token: generateRandomToken(),
       };
 
-      await setDoc(userRef, newEntry);
-      alert("Data successfully submitted!");
+      const qrCodeData = await generateQRCodeData(newEntry);
+      newEntry.qrCode = qrCodeData; // Store the QR code as Base64 in Firestore
 
-      // Generate QR code and download
-      await generateQRCodeAndDownload(newEntry);
+      await setDoc(userRef, newEntry);
+
+      // Download the QR code locally
+      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+
+      alert("Data successfully submitted!");
     }
 
     window.location.reload();
@@ -353,6 +357,29 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     alert("An error occurred while storing the data. Please try again.");
   }
 });
+
+// Generate QR code and return as Base64 data URL
+async function generateQRCodeData(data) {
+  try {
+    const qrDataURL = await QRCode.toDataURL(JSON.stringify(data), {
+      width: 256,
+      margin: 1,
+    });
+    return qrDataURL;
+  } catch (error) {
+    console.error("Error generating QR Code:", error);
+    throw error;
+  }
+}
+
+
+// Auto-download the QR code
+function downloadQRCode(dataURL, filename) {
+  const link = document.createElement("a");
+  link.href = dataURL;
+  link.download = filename;
+  link.click();
+}
 
 
 async function fetchUserData(libraryId) {

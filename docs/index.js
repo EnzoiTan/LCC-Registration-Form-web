@@ -148,12 +148,9 @@ const courseInputDiv = document.querySelector(".course-input");
 const majorInputDiv = document.querySelector(".year-input");
 const strandInputDiv = document.querySelector(".strand-input");
 
-departmentSelect.addEventListener("change", () => {
-  const selectedDepartment = departmentSelect.value;
-  updateCourses(selectedDepartment);
-  updateMajors(null); // Clear majors
-
-  if (selectedDepartment === "shs") {
+// Add this function to toggle visibility based on department
+function toggleDepartmentFields(department) {
+  if (department === "shs") {
     gradeInputDiv.style.display = "block";
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
@@ -164,7 +161,47 @@ departmentSelect.addEventListener("change", () => {
     courseInputDiv.style.display = "block";
     majorInputDiv.style.display = "block";
   }
+}
+
+// Modify your event listener for department change
+departmentSelect.addEventListener("change", () => {
+  const selectedDepartment = departmentSelect.value;
+  updateCourses(selectedDepartment);
+  updateMajors(null); // Clear majors
+  toggleDepartmentFields(selectedDepartment); // Update field visibility
 });
+
+// Call toggleDepartmentFields after loading user data
+async function displayUserData(userData) {
+  const userDataDiv = document.getElementById("user-data");
+
+  // Update courses and majors based on department and course
+  await updateCourses(userData.department);
+  document.getElementById("course-select").value = userData.course;
+  await updateMajors(userData.course, userData.department);
+  document.getElementById("major-select").value = userData.major;
+
+  // Display each field of the fetched user data
+  userDataDiv.innerHTML = `
+    <p>Library ID: ${userData.libraryIdNo}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
+    <p>Department: ${userData.department}</p>
+    <p>Course: ${userData.course}</p>
+    <p>Major: ${userData.major}</p>
+    <p>Grade: ${userData.grade}</p>
+    <p>Strand: ${userData.strand}</p>
+    <p>School Year: ${userData.schoolYear}</p>
+    <p>Semester: ${userData.semester}</p>
+    <p>Valid Until: ${userData.validUntil}</p>
+    <p>Token: ${userData.token}</p>
+  `;
+
+  // Call toggleDepartmentFields based on the loaded department
+  toggleDepartmentFields(userData.department);
+}
+
+// Call this function after you fetch and display the user data.
+
 
 courseSelect.addEventListener("change", () => {
   const selectedCourse = courseSelect.value;
@@ -539,6 +576,7 @@ if (libraryIdNo && token) {
           document.getElementById("major-select").value = userData.major;
         });
       });
+
       document.getElementById("grade-select").value = userData.grade;
       document.getElementById("strand-select").value = userData.strand;
       document.getElementById("year-select").value = userData.schoolYear;

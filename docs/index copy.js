@@ -413,13 +413,6 @@ if (libraryIdNo && token) {
           majorSelect.value = userData.major;
         });
       });
-
-      updateCourses(userData.department).then(() => {
-        document.getElementById("course-select").value = userData.course;
-        updateMajors(userData.course, userData.department).then(() => {
-          document.getElementById("major-select").value = userData.major;
-        });
-      });
       document.getElementById("grade-select").value = userData.grade;
       document.getElementById("strand-select").value = userData.strand;
       document.getElementById("year-select").value = userData.schoolYear;

@@ -215,7 +215,6 @@ function updateMajors(course, department) {
 
 
 // Autofill Library ID and Valid Until Date
-// Autofill Library ID and Valid Until Date
 document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
@@ -225,54 +224,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
-
-  if (libraryIdNo) {
-    // Fetch data for the specific Library ID
-    try {
-      const userRef = doc(db, "LIDC_Users", libraryIdNo);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        // Fill input fields with existing user data
-        libraryIdInput.value = userData.libraryIdNo;
-        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
-        displayUserData(userData); // Load other user details
-      } else {
-        console.error("No data found for the given Library ID.");
-        alert("User not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+  try {
+    // Query Firestore to get the last Library ID
+    const libraryIdQuery = query(
+      collection(db, "LIDC_Users"),
+      orderBy("libraryIdNo", "desc"),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(libraryIdQuery);
+    let newId = "00001"; // Default ID if no data exists
+    if (!querySnapshot.empty) {
+      const lastDoc = querySnapshot.docs[0];
+      const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
+      newId = (lastId + 1).toString().padStart(5, "0");
     }
-  } else {
-    // Generate a new Library ID
-    try {
-      const libraryIdQuery = query(
-        collection(db, "LIDC_Users"),
-        orderBy("libraryIdNo", "desc"),
-        limit(1)
-      );
-      const querySnapshot = await getDocs(libraryIdQuery);
-      let newId = "00001"; // Default ID if no data exists
-      if (!querySnapshot.empty) {
-        const lastDoc = querySnapshot.docs[0];
-        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
-        newId = (lastId + 1).toString().padStart(5, "0");
-      }
-      libraryIdInput.value = newId;
-    } catch (error) {
-      console.error("Error generating Library ID:", error);
-      alert("Failed to generate Library ID. Please refresh the page.");
-    }
-
-    // Set Valid Until Date for new entries
-    validUntilInput.value = "July 2025";
+    libraryIdInput.value = newId;
+  } catch (error) {
+    console.error("Error fetching Library ID:", error);
+    alert("Failed to generate Library ID. Please refresh the page.");
   }
-});
 
+  // Set Valid Until Date
+  validUntilInput.value = "July 2025";
+});
 
 // Generate Random Token
 function generateRandomToken() {
@@ -308,35 +282,54 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     return;
   }
 
-  const newEntry = {
-    libraryIdNo: libraryIdInput.value.trim(),
-    validUntil: validUntilInput.value.trim(),
-    lastName,
-    firstName,
-    middleInitial,
-    gender,
-    department,
-    course: department === "shs" ? "" : course,
-    major: department === "shs" ? "" : major,
-    grade: department === "shs" ? grade : "",
-    strand: department === "shs" ? strand : "",
-    schoolYear,
-    semester,
-    timesEntered: 0,
-    token: generateRandomToken(),  // Add the random token here
-  };
+  const libraryIdNo = libraryIdInput.value.trim();
+  const validUntil = validUntilInput.value.trim();
 
   try {
-    const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-    await setDoc(userRef, newEntry);
-    alert("Data successfully submitted!");
-    generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
+    const userRef = doc(db, "LIDC_Users", libraryIdNo);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      // Update existing user: increment timesEntered
+      const userData = userSnap.data();
+      const updatedTimesEntered = (userData.timesEntered || 0) + 1;
+
+      await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
+      alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
+    } else {
+      // Create new user: download QR and set timesEntered to 1
+      const newEntry = {
+        libraryIdNo,
+        validUntil,
+        lastName,
+        firstName,
+        middleInitial,
+        gender,
+        department,
+        course: department === "shs" ? "" : course,
+        major: department === "shs" ? "" : major,
+        grade: department === "shs" ? grade : "",
+        strand: department === "shs" ? strand : "",
+        schoolYear,
+        semester,
+        timesEntered: 1,
+        token: generateRandomToken(),
+      };
+
+      await setDoc(userRef, newEntry);
+      alert("Data successfully submitted!");
+
+      // Generate QR code and download
+      await generateQRCodeAndDownload(newEntry);
+    }
+
     window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
   }
 });
+
 
 async function fetchUserData(libraryId) {
   try {

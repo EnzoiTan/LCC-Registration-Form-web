@@ -41,11 +41,15 @@ if (libraryIdNo && token) {
 
       // Hide or show fields based on department
       if (userData.department === "shs") {
+        document.querySelector(".course-input").style.display = "none";
+        document.querySelector(".major-input").style.display = "none";
         document.querySelector(".grade-input").style.display = "block";
         document.querySelector(".strand-input").style.display = "block";
       } else {
         document.querySelector(".course-input").style.display = "block";
         document.querySelector(".major-input").style.display = "block";
+        document.querySelector(".grade-input").style.display = "none";
+        document.querySelector(".strand-input").style.display = "none";
       }
     }
   }).catch((error) => {

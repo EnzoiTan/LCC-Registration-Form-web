@@ -414,28 +414,40 @@ async function displayUserData(userData) {
 async function generateQRCodeAndDownload(newEntry) {
   const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
 
-  QRCode.toDataURL(fullQRCodeLink, async (err, url) => {
-    if (err) {
-      console.error("Error generating QR code:", err);
-      return;
-    }
+  try {
+    // Generate QR code URL
+    QRCode.toDataURL(fullQRCodeLink, async (err, url) => {
+      if (err) {
+        console.error("Error generating QR code:", err);
+        alert("Failed to generate QR code. Please try again.");
+        return;
+      }
 
-    // Trigger the download automatically
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
-    link.click();
+      // Trigger QR code download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
+      link.click();
 
-    // Save the full QR code URL to Firestore
-    try {
-      const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-      await setDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true });
-      console.log("Full QR code URL saved to Firestore.");
-    } catch (error) {
-      console.error("Error saving full QR code URL to Firestore:", error);
-    }
-  });
+      // Save the QR code URL to Firestore
+      try {
+        const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
+        await setDoc(
+          userRef,
+          { qrCodeURL: fullQRCodeLink, qrImageURL: url },
+          { merge: true }
+        );
+        console.log("QR code URL and image data saved to Firestore.");
+      } catch (error) {
+        console.error("Error saving QR code to Firestore:", error);
+        alert("Failed to save QR code to Firestore.");
+      }
+    });
+  } catch (error) {
+    console.error("Unexpected error generating QR code:", error);
+  }
 }
+
 
 // Handle URL parameters
 const urlParams = new URLSearchParams(window.location.search);

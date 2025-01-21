@@ -224,29 +224,54 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  try {
-    // Query Firestore to get the last Library ID
-    const libraryIdQuery = query(
-      collection(db, "LIDC_Users"),
-      orderBy("libraryIdNo", "desc"),
-      limit(1)
-    );
-    const querySnapshot = await getDocs(libraryIdQuery);
-    let newId = "00001"; // Default ID if no data exists
-    if (!querySnapshot.empty) {
-      const lastDoc = querySnapshot.docs[0];
-      const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
-      newId = (lastId + 1).toString().padStart(5, "0");
-    }
-    libraryIdInput.value = newId;
-  } catch (error) {
-    console.error("Error fetching Library ID:", error);
-    alert("Failed to generate Library ID. Please refresh the page.");
-  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
 
-  // Set Valid Until Date
-  validUntilInput.value = "July 2025";
+  if (libraryIdNo) {
+    // Fetch data for the specific Library ID
+    try {
+      const userRef = doc(db, "LIDC_Users", libraryIdNo);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        // Fill input fields with existing user data
+        libraryIdInput.value = userData.libraryIdNo;
+        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
+        displayUserData(userData); // Load other user details
+      } else {
+        console.error("No data found for the given Library ID.");
+        alert("User not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  } else {
+    // Generate a new Library ID
+    try {
+      const libraryIdQuery = query(
+        collection(db, "LIDC_Users"),
+        orderBy("libraryIdNo", "desc"),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(libraryIdQuery);
+      let newId = "00001"; // Default ID if no data exists
+      if (!querySnapshot.empty) {
+        const lastDoc = querySnapshot.docs[0];
+        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
+        newId = (lastId + 1).toString().padStart(5, "0");
+      }
+      libraryIdInput.value = newId;
+    } catch (error) {
+      console.error("Error generating Library ID:", error);
+      alert("Failed to generate Library ID. Please refresh the page.");
+    }
+
+    // Set Valid Until Date for new entries
+    validUntilInput.value = "July 2025";
+  }
 });
+
 
 // Generate Random Token
 function generateRandomToken() {

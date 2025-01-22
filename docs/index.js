@@ -289,6 +289,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
 
+  const patron = document.querySelector(".patron select").value.trim();
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
   const middleInitial = document.querySelector(".name-inputs .data-input:nth-child(3) input").value.trim();
@@ -301,7 +302,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
   const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
-  if (!lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
+  if (!patron || !lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
     alert("Please fill out all required fields before submitting.");
     return;
   }
@@ -325,6 +326,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
       const newEntry = {
         libraryIdNo,
         validUntil,
+        patron,
         lastName,
         firstName,
         middleInitial,
@@ -411,6 +413,7 @@ async function displayUserData(userData) {
   // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
+    <p>Type of Patron: ${userData.libraryIdNo}</p>
     <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
     <p>Course: ${userData.course}</p>
@@ -484,6 +487,7 @@ const token = urlParams.get('token');
 if (libraryIdNo && token) {
   fetchUserData(libraryIdNo).then((userData) => {
     if (userData && userData.token === token) {
+      document.querySelector(".patron select").value = userData.patron;
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
       document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;

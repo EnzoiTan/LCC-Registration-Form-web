@@ -26,6 +26,7 @@ if (libraryIdNo && token) {
   // Fetch student data from Firebase
   fetchUserData(libraryIdNo).then((userData) => {
     if (userData && userData.token === token) {
+      document.querySelector(".patron select").value = userData.patron;
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
       document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;

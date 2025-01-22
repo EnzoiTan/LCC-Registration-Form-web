@@ -314,56 +314,62 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userRef = doc(db, "LIDC_Users", libraryIdNo);
     const userSnap = await getDoc(userRef);
 
+    // Always update the timestamp
+    const updatedEntry = {
+        timestamp: new Date(), // Always update the timestamp when submitting
+    };
+
     if (userSnap.exists()) {
-      // Update existing user: increment timesEntered
-      const userData = userSnap.data();
-      const updatedTimesEntered = (userData.timesEntered || 0) + 1;
+        // Update existing user: increment timesEntered and update timestamp
+        const userData = userSnap.data();
+        const updatedTimesEntered = (userData.timesEntered || 0) + 1;
 
-      await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
-      await setDoc(userRef, newEntry, { merge: true });
-      alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
+        // Merge the existing data with the updated timesEntered and timestamp
+        await setDoc(userRef, { timesEntered: updatedTimesEntered, timestamp: updatedEntry.timestamp }, { merge: true });
+        alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
     } else {
-      // Create new user: generate and store QR code
-      const newEntry = {
-        libraryIdNo,
-        validUntil,
-        patron,
-        lastName,
-        firstName,
-        middleInitial,
-        gender,
-        department,
-        course: department === "shs" ? "" : course,
-        major: department === "shs" ? "" : major,
-        grade: department === "shs" ? grade : "",
-        strand: department === "shs" ? strand : "",
-        schoolYear,
-        semester,
-        timesEntered: 1,
-        token: generateRandomToken(),
-        timestamp: new Date(), // Store the timestamp when the user is first created
-      };
+        // Create new user: generate and store QR code
+        const newEntry = {
+            libraryIdNo,
+            validUntil,
+            patron,
+            lastName,
+            firstName,
+            middleInitial,
+            gender,
+            department,
+            course: department === "shs" ? "" : course,
+            major: department === "shs" ? "" : major,
+            grade: department === "shs" ? grade : "",
+            strand: department === "shs" ? strand : "",
+            schoolYear,
+            semester,
+            timesEntered: 1,
+            token: generateRandomToken(),
+            timestamp: updatedEntry.timestamp, // Store the updated timestamp
+        };
 
-      const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${newEntry.token}`;
+        const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${newEntry.token}`;
 
-      // Generate QR code and save it as a URL
-      const qrCodeData = await generateQRCodeData(fullQRCodeLink);
-      newEntry.qrCodeURL = fullQRCodeLink; // Store the link in Firestore
-      newEntry.qrCodeImage = qrCodeData; // Store the image data in Firestore
+        // Generate QR code and save it as a URL
+        const qrCodeData = await generateQRCodeData(fullQRCodeLink);
+        newEntry.qrCodeURL = fullQRCodeLink; // Store the link in Firestore
+        newEntry.qrCodeImage = qrCodeData; // Store the image data in Firestore
 
-      await setDoc(userRef, newEntry);
+        await setDoc(userRef, newEntry);
 
-      // Download the QR code locally
-      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+        // Download the QR code locally
+        downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
 
-      alert("Data successfully submitted!");
+        alert("Data successfully submitted!");
     }
 
     window.location.reload();
-  } catch (error) {
+} catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
-  }
+}
+
 });
 
 

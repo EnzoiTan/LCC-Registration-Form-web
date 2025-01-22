@@ -340,11 +340,15 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
         semester,
         timesEntered: 1,
         token: generateRandomToken(),
-        timestamp: new Date()  // Store the timestamp when the user is first created
+        timestamp: new Date(), // Store the timestamp when the user is first created
       };
 
-      const qrCodeData = await generateQRCodeData(newEntry);
-      newEntry.qrCode = qrCodeData; // Store the QR code as Base64 in Firestore
+      const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${newEntry.token}`;
+
+      // Generate QR code and save it as a URL
+      const qrCodeData = await generateQRCodeData(fullQRCodeLink);
+      newEntry.qrCodeURL = fullQRCodeLink; // Store the link in Firestore
+      newEntry.qrCodeImage = qrCodeData; // Store the image data in Firestore
 
       await setDoc(userRef, newEntry);
 
@@ -360,6 +364,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     alert("An error occurred while storing the data. Please try again.");
   }
 });
+
 
 // Generate QR code and return as Base64 data URL
 async function generateQRCodeData(data) {

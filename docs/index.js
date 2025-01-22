@@ -320,6 +320,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
       const updatedTimesEntered = (userData.timesEntered || 0) + 1;
 
       await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
+      await setDoc(userRef, newEntry, { merge: true });
       alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
     } else {
       // Create new user: generate and store QR code

@@ -519,15 +519,79 @@ const libraryIdNo = urlParams.get('libraryIdNo');
 const token = urlParams.get('token');
 
 if (libraryIdNo && token) {
-  // Fetch student data from Firebase
   fetchUserData(libraryIdNo).then((userData) => {
     if (userData && userData.token === token) {
+      document.querySelector(".patron select").value = userData.patron;
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
       document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
+      updateCourses(userData.department).then(() => {
+        courseSelect.value = userData.course;// Autofill Library ID and Valid Until Date
+        document.addEventListener("DOMContentLoaded", async () => {
+          const libraryIdInput = document.getElementById("library-id");
+          const validUntilInput = document.getElementById("valid-until");
+        
+          if (!libraryIdInput || !validUntilInput) {
+            console.error("One or more required DOM elements are missing.");
+            return;
+          }
+        
+          const urlParams = new URLSearchParams(window.location.search);
+          const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
+        
+          if (libraryIdNo) {
+            // Fetch data for the specific Library ID
+            try {
+              const userRef = doc(db, "LIDC_Users", libraryIdNo);
+              const docSnap = await getDoc(userRef);
+        
+              if (docSnap.exists()) {
+                const userData = docSnap.data();
+                // Fill input fields with existing user data
+                libraryIdInput.value = userData.libraryIdNo;
+                validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
+                displayUserData(userData); // Load other user details
+              } else {
+                console.error("No data found for the given Library ID.");
+                alert("User not found.");
+              }
+            } catch (error) {
+              console.error("Error fetching user data:", error);
+            }
+          } else {
+            // Generate a new Library ID
+            try {
+              const libraryIdQuery = query(
+                collection(db, "LIDC_Users"),
+                orderBy("libraryIdNo", "desc"),
+                limit(1)
+              );
+              const querySnapshot = await getDocs(libraryIdQuery);
+              let newId = "00001"; // Default ID if no data exists
+              if (!querySnapshot.empty) {
+                const lastDoc = querySnapshot.docs[0];
+                const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
+                newId = (lastId + 1).toString().padStart(5, "0");
+              }
+              libraryIdInput.value = newId;
+            } catch (error) {
+              console.error("Error generating Library ID:", error);
+              alert("Failed to generate Library ID. Please refresh the page.");
+            }
+        
+            // Set Valid Until Date for new entries
+            validUntilInput.value = "July 2025";
+          }
+        });
+        
+        updateMajors(userData.course, userData.department).then(() => {
+          majorSelect.value = userData.major;
+        });
+      });
+
       updateCourses(userData.department).then(() => {
         document.getElementById("course-select").value = userData.course;
         updateMajors(userData.course, userData.department).then(() => {
@@ -542,18 +606,17 @@ if (libraryIdNo && token) {
       // Hide or show fields based on department
       if (userData.department === "shs") {
         document.querySelector(".course-input").style.display = "none";
-        document.querySelector(".year-input").style.display = "none";
+        document.querySelector(".major-input").style.display = "none";
         document.querySelector(".grade-input").style.display = "block";
         document.querySelector(".strand-input").style.display = "block";
       } else {
         document.querySelector(".course-input").style.display = "block";
-        document.querySelector(".year-input").style.display = "block";
+        document.querySelector(".major-input").style.display = "block";
         document.querySelector(".grade-input").style.display = "none";
         document.querySelector(".strand-input").style.display = "none";
       }
-    } else {
-      alert("Invalid token.");
     }
   }).catch((error) => {
     console.error("Error fetching document:", error);
-  })}
+  });
+}

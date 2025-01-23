@@ -432,16 +432,24 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      // If user already exists, update their document
-      await setDoc(userRef, userData, { merge: true }); // merge to update only necessary fields
-      alert("Welcome back! Your entry has been recorded.");
+      // If user already exists, increment the "timesEntered" and update other fields
+      const existingUserData = userSnap.data();
+      const updatedTimesEntered = existingUserData.timesEntered + 1;
+
+      // Update the user document with the new data
+      await setDoc(userRef, {
+        ...userData,
+        timesEntered: updatedTimesEntered
+      }, { merge: true });
+
+      alert("Welcome back! Your entry has been updated.");
     } else {
       // If new user, create a new document
       await setDoc(userRef, userData); // Create new document
       alert("Data successfully submitted!");
     }
 
-    // You can also generate QR code for this entry and save it
+    // Generate QR code for this entry and save it
     const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
     const qrCodeData = await generateQRCodeData(fullQRCodeLink);
 
@@ -454,13 +462,28 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     // Trigger the download of QR code
     downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
 
-    // Reload the page after successful submission
-    window.location.reload();
+    // Display updated data on the form
+    document.querySelector(".patron select").value = userData.patron;
+    document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+    document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+    document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
+    document.querySelector(".gender select").value = userData.gender;
+    document.getElementById("library-id").value = userData.libraryIdNo;
+    document.getElementById("department-select").value = userData.department;
+    document.getElementById("course-select").value = userData.course;
+    document.getElementById("major-select").value = userData.major;
+    document.getElementById("grade-select").value = userData.grade;
+    document.getElementById("strand-select").value = userData.strand;
+    document.getElementById("year-select").value = userData.schoolYear;
+    document.getElementById("semester-select").value = userData.semester;
+    document.getElementById("valid-until").value = userData.validUntil;
+
   } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
   }
 });
+
 
 // Show or hide the "Specify School" input field when "Other" is selected
 document.getElementById("school-select").addEventListener("change", (event) => {

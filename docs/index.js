@@ -417,7 +417,6 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     schoolYear,
     semester,
     timesEntered: 1, // Start timesEntered with 1
-    token: generateRandomToken(),
     timestamp: new Date(), // Save the timestamp of submission
     collegeSelect, // Selected college/department
     schoolSelect, // Selected school
@@ -432,19 +431,26 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      // If user already exists, increment the "timesEntered" and update other fields
+      // If user already exists, get the existing token and increment timesEntered
       const existingUserData = userSnap.data();
       const updatedTimesEntered = existingUserData.timesEntered + 1;
+      const existingToken = existingUserData.token; // Keep the existing token
 
-      // Update the user document with the new data (without downloading the QR)
+      // Update the user document with the new data (without generating a new token)
       await setDoc(userRef, {
         ...userData,
-        timesEntered: updatedTimesEntered
+        timesEntered: updatedTimesEntered,
+        token: existingToken // Keep the existing token
       }, { merge: true });
 
       alert("Welcome back! Your entry has been updated.");
     } else {
-      // If new user, create a new document
+      // If new user, create a new token and a new document
+      const newToken = generateRandomToken(); // Generate a new token for the new user
+
+      // Update the userData object to include the new token
+      userData.token = newToken;
+
       await setDoc(userRef, userData); // Create new document
       alert("Data successfully submitted!");
     }

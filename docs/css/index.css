@@ -96,7 +96,7 @@ body {
   box-sizing: border-box; /* Prevent padding from affecting width */
 }
 .container .middle-initial {
-  flex: 0.4; /* Reduce the width for the middle initial input */
+  flex: 0.2; /* Reduce the width for the middle initial input */
 }
 .container .gender {
   flex: 0.3; /* Ensure smaller width for the gender dropdown */

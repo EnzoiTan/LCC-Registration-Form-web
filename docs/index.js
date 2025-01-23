@@ -451,37 +451,110 @@ async function fetchUserData(libraryId) {
   }
 }
 
-function displayUserData(userData) {
-  // Example of how to display fetched data in HTML
+// Display user data in the form
+async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 
-  // Display each field of the fetched user data
+  // Update fields in the form
+  document.getElementById("library-id").value = userData.libraryIdNo;
+  document.getElementById("valid-until").value = userData.validUntil || "July 2025";
+  document.querySelector(".patron select").value = userData.patron;
+  document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+  document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+  document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial || "";
+  document.querySelector(".gender select").value = userData.gender;
+  document.getElementById("department-select").value = userData.department;
+
+  // Update courses and majors based on department
+  await updateCourses(userData.department);
+  document.getElementById("course-select").value = userData.course;
+  await updateMajors(userData.course, userData.department);
+  document.getElementById("major-select").value = userData.major;
+
+  // Display additional user details in a div
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
+    <p>Type of Patron: ${userData.patron}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial || ""} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.course}</p>
-    <p>Major: ${userData.major}</p>
-    <p>Grade: ${userData.grade}</p>
-    <p>Strand: ${userData.strand}</p>
+    <p>Course: ${userData.course || "N/A"}</p>
+    <p>Major: ${userData.major || "N/A"}</p>
+    <p>Grade: ${userData.grade || "N/A"}</p>
+    <p>Strand: ${userData.strand || "N/A"}</p>
     <p>School Year: ${userData.schoolYear}</p>
     <p>Semester: ${userData.semester}</p>
     <p>Valid Until: ${userData.validUntil}</p>
-    <p>Token: ${userData.token}</p>
+    <p>Times Entered: ${userData.timesEntered || 0}</p>
   `;
 
-  // Hide or show fields based on department
-  if (userData.department === "shs") {
-    document.querySelector(".course-input").style.display = "none";
-    document.querySelector(".year-input").style.display = "none";
-    document.querySelector(".grade-input").style.display = "block";
-    document.querySelector(".strand-input").style.display = "block"; 
-  } else {
-    document.querySelector(".course-input").style.display = "block";
-    document.querySelector(".year-input").style.display = "block";
-    document.querySelector(".grade-input").style.display = "none";
-    document.querySelector(".strand-input").style.display = "none";
+  // Show/hide fields based on patron type
+  toggleFields(userData.patron);
+}
+
+// Toggle visibility of fields based on patron type
+function toggleFields(patronType) {
+  const departmentInput = document.querySelector(".department-input");
+  const courseInput = document.querySelector(".course-input");
+  const majorInput = document.querySelector(".major-input");
+  const strandInput = document.querySelector(".strand-input");
+  const gradeInput = document.querySelector(".grade-input");
+  const schoolSelect = document.querySelector(".school");
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  const campusDeptInput = document.querySelector(".campusdept");
+  const collegeInput = document.querySelector(".college");
+
+  switch (patronType) {
+    case "visitor":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "block";
+      campusDeptInput.style.display = "none";
+      collegeInput.style.display = "none";
+      specifySchoolInput.style.display = "block";
+      break;
+    case "faculty":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none";
+      campusDeptInput.style.display = "none";
+      collegeInput.style.display = "block";
+      specifySchoolInput.style.display = "none";
+      break;
+    case "admin":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none";
+      campusDeptInput.style.display = "block";
+      collegeInput.style.display = "none";
+      specifySchoolInput.style.display = "none";
+      break;
+    default: // student
+      departmentInput.style.display = "block";
+      courseInput.style.display = "block";
+      majorInput.style.display = "block";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none";
+      campusDeptInput.style.display = "none";
+      collegeInput.style.display = "none";
+      specifySchoolInput.style.display = "none";
+      break;
   }
+}
+
+if (libraryIdNo) {
+  fetchUserData(libraryIdNo).catch((error) => {
+    console.error("Error fetching user data:", error);
+  });
 }
 
 // Generate QR Code and trigger download

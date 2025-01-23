@@ -433,32 +433,26 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
 
     if (userSnap.exists()) {
       // If user already exists, update their document
-      const existingData = userSnap.data();
-      const updatedData = {
-        ...existingData,
-        ...userData, // Merge new data with existing data
-        timesEntered: existingData.timesEntered + 1 // Increment timesEntered
-      };
-      await setDoc(userRef, updatedData, { merge: true }); // merge to update only necessary fields
-      alert("Your data has been updated and entry count incremented.");
+      await setDoc(userRef, userData, { merge: true }); // merge to update only necessary fields
+      alert("Welcome back! Your entry has been recorded.");
     } else {
       // If new user, create a new document
       await setDoc(userRef, userData); // Create new document
       alert("Data successfully submitted!");
-
-      // You can also generate QR code for this entry and save it
-      const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
-      const qrCodeData = await generateQRCodeData(fullQRCodeLink);
-
-      // Save the QR code data to Firestore
-      await setDoc(userRef, {
-        qrCodeURL: fullQRCodeLink,
-        qrCodeImage: qrCodeData
-      }, { merge: true });
-
-      // Trigger the download of QR code
-      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
     }
+
+    // You can also generate QR code for this entry and save it
+    const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
+    const qrCodeData = await generateQRCodeData(fullQRCodeLink);
+
+    // Save the QR code data to Firestore
+    await setDoc(userRef, {
+      qrCodeURL: fullQRCodeLink,
+      qrCodeImage: qrCodeData
+    }, { merge: true });
+
+    // Trigger the download of QR code
+    downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
 
     // Reload the page after successful submission
     window.location.reload();

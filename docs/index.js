@@ -226,6 +226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const strandInput = document.querySelector('.strand-input');
   const gradeInput = document.querySelector('.grade-input');
   const schoolSelect = document.querySelector('.school');
+  const schoolSelected = document.querySelector('.school select');
   const specifySchoolInput = document.getElementById("specify-school-input");
   const campusDeptInput = document.querySelector('.campusdept');
   const collegeInput = document.querySelector('.college');
@@ -250,6 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         schoolSelect.style.display = 'block';
         campusDeptInput.style.display = 'none';
         collegeInput.style.display = 'none';
+        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
         break;
       case 'faculty':
         departmentInput.style.display = 'none';
@@ -284,9 +286,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  // Function to toggle the 'Specify School' input field visibility
   const toggleSpecifySchoolInput = () => {
-    specifySchoolInput.style.display = schoolSelect.value === 'other' ? 'block' : 'none';
+    if (schoolSelected && schoolSelected.value === 'other') {
+      specifySchoolInput.style.display = 'block'; // Show the input field
+    } else {
+      specifySchoolInput.style.display = 'none'; // Hide the input field
+    }
   };
 
   // Event listener for when patron type is changed
@@ -358,7 +363,6 @@ function generateRandomToken() {
 }
 
 
-// Submit Form
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
@@ -461,8 +465,6 @@ document.getElementById("school-select").addEventListener("change", (event) => {
   }
 });
 
-
-
 // Generate QR code and return as Base64 data URL
 async function generateQRCodeData(data) {
   try {
@@ -476,7 +478,6 @@ async function generateQRCodeData(data) {
     throw error;
   }
 }
-
 
 // Auto-download the QR code
 function downloadQRCode(dataURL, filename) {
@@ -495,51 +496,125 @@ async function fetchUserData(libraryId) {
     if (docSnap.exists()) {
       const userData = docSnap.data();
       displayUserData(userData);
+
+      // Increment timesEntered
+      const updatedTimesEntered = (userData.timesEntered || 0) + 1;
+      await updateDoc(userRef, { timesEntered: updatedTimesEntered });
+
+      console.log(`Times entered incremented to: ${updatedTimesEntered}`);
     } else {
       console.error("No such document!");
+      alert("User not found.");
     }
   } catch (error) {
     console.error("Error fetching user data:", error);
   }
 }
 
+// Display user data in the form
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 
-  // Update courses and majors based on department and course
+  // Update fields in the form
+  document.getElementById("library-id").value = userData.libraryIdNo;
+  document.getElementById("valid-until").value = userData.validUntil || "July 2025";
+  document.querySelector(".patron select").value = userData.patron;
+  document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+  document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+  document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial || "";
+  document.querySelector(".gender select").value = userData.gender;
+  document.getElementById("department-select").value = userData.department;
+
+  // Update courses and majors based on department
   await updateCourses(userData.department);
   document.getElementById("course-select").value = userData.course;
   await updateMajors(userData.course, userData.department);
   document.getElementById("major-select").value = userData.major;
 
-  // Display each field of the fetched user data
+  // Display additional user details in a div
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Type of Patron: ${userData.libraryIdNo}</p>
-    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
+    <p>Type of Patron: ${userData.patron}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial || ""} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.course}</p>
-    <p>Major: ${userData.major}</p>
-    <p>Grade: ${userData.grade}</p>
-    <p>Strand: ${userData.strand}</p>
+    <p>Course: ${userData.course || "N/A"}</p>
+    <p>Major: ${userData.major || "N/A"}</p>
+    <p>Grade: ${userData.grade || "N/A"}</p>
+    <p>Strand: ${userData.strand || "N/A"}</p>
     <p>School Year: ${userData.schoolYear}</p>
     <p>Semester: ${userData.semester}</p>
     <p>Valid Until: ${userData.validUntil}</p>
-    <p>Token: ${userData.token}</p>
+    <p>Times Entered: ${userData.timesEntered || 0}</p>
   `;
 
-  // Hide or show fields based on department
-  if (userData.department === "shs") {
-    document.querySelector(".course-input").style.display = "none";
-    document.querySelector(".major-input").style.display = "none";
-    document.querySelector(".grade-input").style.display = "block";
-    document.querySelector(".strand-input").style.display = "block"; 
-  } else {
-    document.querySelector(".course-input").style.display = "block";
-    document.querySelector(".major-input").style.display = "block";
-    document.querySelector(".grade-input").style.display = "none";
-    document.querySelector(".strand-input").style.display = "none";
+  // Show/hide fields based on patron type
+  toggleFields(userData.patron);
+}
+
+// Toggle visibility of fields based on patron type
+function toggleFields(patronType) {
+  const departmentInput = document.querySelector(".department-input");
+  const courseInput = document.querySelector(".course-input");
+  const majorInput = document.querySelector(".major-input");
+  const strandInput = document.querySelector(".strand-input");
+  const gradeInput = document.querySelector(".grade-input");
+  const schoolSelect = document.querySelector(".school");
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  const campusDeptInput = document.querySelector(".campusdept");
+  const collegeInput = document.querySelector(".college");
+
+  switch (patronType) {
+    case "visitor":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "block";
+      campusDeptInput.style.display = "none";
+      collegeInput.style.display = "none";
+      specifySchoolInput.style.display = "block";
+      break;
+    case "faculty":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none";
+      campusDeptInput.style.display = "none";
+      collegeInput.style.display = "block";
+      specifySchoolInput.style.display = "none";
+      break;
+    case "admin":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none";
+      campusDeptInput.style.display = "block";
+      collegeInput.style.display = "none";
+      specifySchoolInput.style.display = "none";
+      break;
+    default: // student
+      departmentInput.style.display = "block";
+      courseInput.style.display = "block";
+      majorInput.style.display = "block";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none";
+      campusDeptInput.style.display = "none";
+      collegeInput.style.display = "none";
+      specifySchoolInput.style.display = "none";
+      break;
   }
+}
+
+if (libraryIdNo) {
+  fetchUserData(libraryIdNo).catch((error) => {
+    console.error("Error fetching user data:", error);
+  });
 }
 
 // Generate QR Code and trigger download

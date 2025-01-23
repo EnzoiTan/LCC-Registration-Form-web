@@ -144,9 +144,9 @@ const majorSelect = document.getElementById("major-select");
 const gradeSelect = document.getElementById("grade-select");
 const strandSelect = document.getElementById("strand-select");
 const gradeInputDiv = document.querySelector(".grade-input");
+const strandInputDiv = document.querySelector(".strand-input");
 const courseInputDiv = document.querySelector(".course-input");
 const majorInputDiv = document.querySelector(".major-input");
-const strandInputDiv = document.querySelector(".strand-input");
 const collegeInputDiv = document.querySelector(".college-input");
 
 departmentSelect.addEventListener("change", () => {
@@ -319,6 +319,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
         displayUserData(userData); // Load other user details
         toggleFields(userData.patronType); // Apply visibility logic based on patron type
+
+        // Update courses and majors based on department and course
+        await updateCourses(userData.department);
+        courseSelect.value = userData.course; // Autofill course
+        await updateMajors(userData.course, userData.department);
+        majorSelect.value = userData.major; // Autofill major
+
+        // Set other fields
+        gradeSelect.value = userData.grade;
+        strandSelect.value = userData.strand;
+        // Set school year and semester if applicable
+        document.getElementById("year-select").value = userData.schoolYear;
+        document.getElementById("semester-select").value = userData.semester;
+
+        // Hide or show fields based on department
+        if (userData.department === "shs") {
+          document.querySelector(".course-input").style.display = "none";
+          document.querySelector(".major-input").style.display = "none";
+          document.querySelector(".grade-input").style.display = "block";
+          document.querySelector(".strand-input").style.display = "block"; 
+        } else {
+          document.querySelector(".course-input").style.display = "block";
+          document.querySelector(".major-input").style.display = "block";
+          document.querySelector(".grade-input").style.display = "none";
+          document.querySelector(".strand-input").style.display = "none";
+        }
       } else {
         console.error("No data found for the given Library ID.");
         alert("User not found.");
@@ -361,7 +387,6 @@ function generateRandomToken() {
   }
   return token;
 }
-
 
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
@@ -465,8 +490,6 @@ document.getElementById("school-select").addEventListener("change", (event) => {
   }
 });
 
-
-
 // Generate QR code and return as Base64 data URL
 async function generateQRCodeData(data) {
   try {
@@ -481,7 +504,6 @@ async function generateQRCodeData(data) {
   }
 }
 
-
 // Auto-download the QR code
 function downloadQRCode(dataURL, filename) {
   const link = document.createElement("a");
@@ -489,7 +511,6 @@ function downloadQRCode(dataURL, filename) {
   link.download = filename;
   link.click();
 }
-
 
 async function fetchUserData(libraryId) {
   try {
@@ -510,16 +531,10 @@ async function fetchUserData(libraryId) {
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 
-  // Update courses and majors based on department and course
-  await updateCourses(userData.department);
-  document.getElementById("course-select").value = userData.course;
-  await updateMajors(userData.course, userData.department);
-  document.getElementById("major-select").value = userData.major;
-
   // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Type of Patron: ${userData.libraryIdNo}</p>
+    <p>Type of Patron: ${userData.patron}</p>
     <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
     <p>Course: ${userData.course}</p>
@@ -534,65 +549,11 @@ async function displayUserData(userData) {
 
   toggleFields(userData.patron);
 
-  // Toggle visibility of fields based on patron type
-function toggleFields(patronType) {
-  const departmentInput = document.querySelector(".department-input");
-  const courseInput = document.querySelector(".course-input");
-  const majorInput = document.querySelector(".major-input");
-  const strandInput = document.querySelector(".strand-input");
-  const gradeInput = document.querySelector(".grade-input");
-  const schoolSelect = document.querySelector(".school");
-  const specifySchoolInput = document.getElementById("specify-school-input");
-  const campusDeptInput = document.querySelector(".campusdept");
-  const collegeInput = document.querySelector(".college");
-
-  switch (patronType) {
-    case "visitor":
-      departmentInput.style.display = "none";
-      courseInput.style.display = "none";
-      majorInput.style.display = "none";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "block";
-      campusDeptInput.style.display = "none";
-      collegeInput.style.display = "none";
-      specifySchoolInput.style.display = "block";
-      break;
-    case "faculty":
-      departmentInput.style.display = "none";
-      courseInput.style.display = "none";
-      majorInput.style.display = "none";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "none";
-      campusDeptInput.style.display = "none";
-      collegeInput.style.display = "block";
-      specifySchoolInput.style.display = "none";
-      break;
-    case "admin":
-      departmentInput.style.display = "none";
-      courseInput.style.display = "none";
-      majorInput.style.display = "none";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "none";
-      campusDeptInput.style.display = "block";
-      collegeInput.style.display = "none";
-      specifySchoolInput.style.display = "none";
-      break;
-    default: // student
-      departmentInput.style.display = "block";
-      courseInput.style.display = "block";
-      majorInput.style.display = "block";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "none";
-      campusDeptInput.style.display = "none";
-      collegeInput.style.display = "none";
-      specifySchoolInput.style.display = "none";
-      break;
-  }
-}
+  // Update courses and majors based on department and course
+  await updateCourses(userData.department);
+  courseSelect.value = userData.course; // Autofill course
+  await updateMajors(userData.course, userData.department);
+  majorSelect.value = userData.major; // Autofill major
 
   // Hide or show fields based on department
   if (userData.department === "shs") {
@@ -646,7 +607,6 @@ async function generateQRCodeAndDownload(newEntry) {
   }
 }
 
-
 // Handle URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 const libraryIdNo = urlParams.get('libraryIdNo');
@@ -662,76 +622,15 @@ if (libraryIdNo && token) {
       document.querySelector(".gender select").value = userData.gender;
       document.getElementById("library-id").value = userData.libraryIdNo;
       document.getElementById("department-select").value = userData.department;
+
+      // Update courses and majors based on department and course
       updateCourses(userData.department).then(() => {
-        courseSelect.value = userData.course;// Autofill Library ID and Valid Until Date
-        document.addEventListener("DOMContentLoaded", async () => {
-          const libraryIdInput = document.getElementById("library-id");
-          const validUntilInput = document.getElementById("valid-until");
-        
-          if (!libraryIdInput || !validUntilInput) {
-            console.error("One or more required DOM elements are missing.");
-            return;
-          }
-        
-          const urlParams = new URLSearchParams(window.location.search);
-          const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
-        
-          if (libraryIdNo) {
-            // Fetch data for the specific Library ID
-            try {
-              const userRef = doc(db, "LIDC_Users", libraryIdNo);
-              const docSnap = await getDoc(userRef);
-        
-              if (docSnap.exists()) {
-                const userData = docSnap.data();
-                // Fill input fields with existing user data
-                libraryIdInput.value = userData.libraryIdNo;
-                validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
-                displayUserData(userData); // Load other user details
-              } else {
-                console.error("No data found for the given Library ID.");
-                alert("User not found.");
-              }
-            } catch (error) {
-              console.error("Error fetching user data:", error);
-            }
-          } else {
-            // Generate a new Library ID
-            try {
-              const libraryIdQuery = query(
-                collection(db, "LIDC_Users"),
-                orderBy("libraryIdNo", "desc"),
-                limit(1)
-              );
-              const querySnapshot = await getDocs(libraryIdQuery);
-              let newId = "00001"; // Default ID if no data exists
-              if (!querySnapshot.empty) {
-                const lastDoc = querySnapshot.docs[0];
-                const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
-                newId = (lastId + 1).toString().padStart(5, "0");
-              }
-              libraryIdInput.value = newId;
-            } catch (error) {
-              console.error("Error generating Library ID:", error);
-              alert("Failed to generate Library ID. Please refresh the page.");
-            }
-        
-            // Set Valid Until Date for new entries
-            validUntilInput.value = "July 2025";
-          }
-        });
-        
+        courseSelect.value = userData.course; // Autofill course
         updateMajors(userData.course, userData.department).then(() => {
-          majorSelect.value = userData.major;
+          majorSelect.value = userData.major; // Autofill major
         });
       });
 
-      updateCourses(userData.department).then(() => {
-        document.getElementById("course-select").value = userData.course;
-        updateMajors(userData.course, userData.department).then(() => {
-          document.getElementById("major-select").value = userData.major;
-        });
-      });
       document.getElementById("grade-select").value = userData.grade;
       document.getElementById("strand-select").value = userData.strand;
       document.getElementById("year-select").value = userData.schoolYear;
@@ -754,62 +653,3 @@ if (libraryIdNo && token) {
     console.error("Error fetching document:", error);
   });
 }
-
-
-// Autofill Library ID and Valid Until Date
-document.addEventListener("DOMContentLoaded", async () => {
-  const libraryIdInput = document.getElementById("library-id");
-  const validUntilInput = document.getElementById("valid-until");
-
-  if (!libraryIdInput || !validUntilInput) {
-    console.error("One or more required DOM elements are missing.");
-    return;
-  }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
-
-  if (libraryIdNo) {
-    // Fetch data for the specific Library ID
-    try {
-      const userRef = doc(db, "LIDC_Users", libraryIdNo);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        // Fill input fields with existing user data
-        libraryIdInput.value = userData.libraryIdNo;
-        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
-        displayUserData(userData); // Load other user details
-      } else {
-        console.error("No data found for the given Library ID.");
-        alert("User not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  } else {
-    // Generate a new Library ID
-    try {
-      const libraryIdQuery = query(
-        collection(db, "LIDC_Users"),
-        orderBy("libraryIdNo", "desc"),
-        limit(1)
-      );
-      const querySnapshot = await getDocs(libraryIdQuery);
-      let newId = "00001"; // Default ID if no data exists
-      if (!querySnapshot.empty) {
-        const lastDoc = querySnapshot.docs[0];
-        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
-        newId = (lastId + 1).toString().padStart(5, "0");
-      }
-      libraryIdInput.value = newId;
-    } catch (error) {
-      console.error("Error generating Library ID:", error);
-      alert("Failed to generate Library ID. Please refresh the page.");
-    }
-
-    // Set Valid Until Date for new entries
-    validUntilInput.value = "July 2025";
-  }
-});

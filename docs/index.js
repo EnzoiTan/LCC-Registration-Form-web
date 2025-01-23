@@ -217,14 +217,95 @@ function updateMajors(course, department) {
 document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
+  const patronSelect = document.querySelector('.patron select');
+  const departmentInput = document.querySelector('.department-input');
+  const courseInput = document.querySelector('.course-input');
+  const majorInput = document.querySelector('.major-input');
+  const strandInput = document.querySelector('.strand-input');
+  const gradeInput = document.querySelector('.grade-input');
+  const schoolInput = document.querySelector('.school-input');
+  const schoolSelect = document.getElementById("school-select");
+  const specifySchoolInput = document.getElementById("specify-school-input");
 
-  if (!libraryIdInput || !validUntilInput) {
+  if (!libraryIdInput || !validUntilInput || !patronSelect) {
     console.error("One or more required DOM elements are missing.");
     return;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
   const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
+
+  // Function to toggle visibility based on patron type
+  const toggleFields = (patronType) => {
+    if (patronType === 'visitor') {
+      departmentInput.style.display = 'none';
+      courseInput.style.display = 'none';
+      majorInput.style.display = 'none';
+      strandInput.style.display = 'none';
+      gradeInput.style.display = 'none';
+      schoolInput.style.display = 'block';
+    } else if (patronType === 'faculty' || patronType === 'admin') {
+      departmentInput.style.display = 'block';
+      courseInput.style.display = 'none';
+      majorInput.style.display = 'none';
+      strandInput.style.display = 'none';
+      gradeInput.style.display = 'none';
+      schoolInput.style.display = 'none';
+      
+      if (patronType === 'admin') {
+        // Modify department options for Admin
+        departmentInput.querySelector('select').innerHTML = `
+          <option value="" disabled selected>Select Department</option>
+          <option value="registrar">Registrar</option>
+          <option value="cashier">Cashier</option>
+          <option value="other">Other Admin</option>
+        `;
+      } else {
+        // Default department options for faculty
+        departmentInput.querySelector('select').innerHTML = `
+          <option value="" disabled selected>Select Department</option>
+          <option value="cics">College of Information in Computing Sciences (CICS)</option>
+          <option value="cte">College of Teacher Education (CTE)</option>
+          <option value="cet">College of Engineering and Technology (CET)</option>
+          <option value="cahss">College of Arts, Humanities and Social Sciences (CAHSS)</option>
+          <option value="sba">School of Business Administration (SBA)</option>
+          <option value="cme">College of Marine Education (CME)</option>
+          <option value="cpes">College of Physical Education and Sport (CPES)</option>
+          <option value="ite">Institute of Technical Education (ITE)</option>
+          <option value="shs">Senior High School (SHS)</option>
+          <option value="gs">Graduate School</option>
+        `;
+      }
+    } else {
+      departmentInput.style.display = 'block';
+      courseInput.style.display = 'block';
+      majorInput.style.display = 'block';
+      strandInput.style.display = 'none';
+      gradeInput.style.display = 'none';
+      schoolInput.style.display = 'none';
+    }
+  };
+
+  // Function to toggle the 'Specify School' input field visibility
+  const toggleSpecifySchoolInput = () => {
+    if (schoolSelect.value === 'other') {
+      specifySchoolInput.style.display = 'block'; // Show the input field
+    } else {
+      specifySchoolInput.style.display = 'none'; // Hide the input field
+    }
+  };
+
+  // Event listener for when patron type is changed
+  patronSelect.addEventListener('change', (event) => {
+    toggleFields(event.target.value);
+  });
+
+  // Event listener for when school selection is changed
+  schoolSelect.addEventListener('change', toggleSpecifySchoolInput);
+
+  // Initialize fields based on default patron type and school selection
+  toggleFields(patronSelect.value);
+  toggleSpecifySchoolInput(); // Ensure the input field is shown/hidden based on the current selection
 
   if (libraryIdNo) {
     // Fetch data for the specific Library ID
@@ -238,6 +319,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         libraryIdInput.value = userData.libraryIdNo;
         validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
         displayUserData(userData); // Load other user details
+        toggleFields(userData.patronType); // Apply visibility logic based on patron type
       } else {
         console.error("No data found for the given Library ID.");
         alert("User not found.");
@@ -272,6 +354,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
+
 // Generate Random Token
 function generateRandomToken() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -281,6 +364,25 @@ function generateRandomToken() {
   }
   return token;
 }
+
+// Add event listener for the patron select element
+document.querySelector(".patron select").addEventListener("change", () => {
+  const patron = document.querySelector(".patron select").value;
+
+  if (patron === "faculty" || patron === "admin") {
+    // Hide the course and major inputs when "faculty" or "admin" is selected
+    document.querySelector(".course-input").style.display = "none";
+    document.querySelector(".major-input").style.display = "none";
+
+    // Show department and retain other necessary fields
+    document.querySelector(".department-input").style.display = "block";  // Assuming department is already visible
+  } else {
+    // Show the course and major inputs again when the patron is not "faculty" or "admin"
+    document.querySelector(".course-input").style.display = "block";
+    document.querySelector(".major-input").style.display = "block";
+  }
+});
+
 
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {

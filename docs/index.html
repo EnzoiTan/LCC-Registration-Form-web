@@ -124,6 +124,37 @@
             <option value="Grade 12">Grade 12</option>
           </select>
         </div>
+        <div class="data-input school-input">
+          <p>School</p>
+          <select id="school-select" required>
+            <option value="" disabled selected>Select School</option>
+            <option value="wmsu">Western Mindanao State University</option>
+            <option value="zscmst">
+              Zamboanga State College of Marine Sciences and Technology
+            </option>
+            <option value="uz">Universidad de Zamboanga</option>
+            <option value="other">Other</option>
+          </select>
+          <input
+            type="text"
+            id="specify-school-input"
+            style="display: none; margin-top: 10px"
+            placeholder="Specify School"
+          />
+        </div>
+        <div class="data-input campusdept-input" style="display: none">
+          <p>Department</p>
+          <select id="campusdept-select" required>
+            <option value="" disabled selected>Select Department</option>
+            <option value="">Registrar</option>
+            <option value="">Medical and Dental Clinic</option>
+            <option value="">Cashier</option>
+            <option value="">
+              Office and the Vice President for Student Affairs
+            </option>
+            <option value="">Human Resources</option>
+          </select>
+        </div>
       </div>
       <div class="year-sem-inputs">
         <div class="data-input">
@@ -151,7 +182,7 @@
       </div>
       <div class="generate-data">
         <div class="data-input">
-          <p>Library ID No.</p>
+          <p>ID Number</p>
           <div class="input-wrapper">
             <input type="text" id="library-id" readonly required />
           </div>

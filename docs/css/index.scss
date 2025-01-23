@@ -22,6 +22,10 @@ body{
     padding: 40px;
     border-radius: 5px;
     overflow-y: auto;
+
+    .logos{
+        display: flex;
+    }
     
     &::-webkit-scrollbar {
         width: 12px;

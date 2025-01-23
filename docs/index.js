@@ -436,7 +436,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
       const existingUserData = userSnap.data();
       const updatedTimesEntered = existingUserData.timesEntered + 1;
 
-      // Update the user document with the new data
+      // Update the user document with the new data (without downloading the QR)
       await setDoc(userRef, {
         ...userData,
         timesEntered: updatedTimesEntered
@@ -449,18 +449,20 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
       alert("Data successfully submitted!");
     }
 
-    // Generate QR code for this entry and save it
+    // Generate QR code for this entry and save it (for new user only)
     const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
     const qrCodeData = await generateQRCodeData(fullQRCodeLink);
 
-    // Save the QR code data to Firestore
+    // Save the QR code data to Firestore (even for new users)
     await setDoc(userRef, {
       qrCodeURL: fullQRCodeLink,
       qrCodeImage: qrCodeData
     }, { merge: true });
 
-    // Trigger the download of QR code
-    downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+    // Trigger the download of QR code (only for new users)
+    if (!userSnap.exists()) {
+      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+    }
 
     // Display updated data on the form
     document.querySelector(".patron select").value = userData.patron;

@@ -147,6 +147,7 @@ const gradeInputDiv = document.querySelector(".grade-input");
 const courseInputDiv = document.querySelector(".course-input");
 const majorInputDiv = document.querySelector(".major-input");
 const strandInputDiv = document.querySelector(".strand-input");
+const collegeInputDiv = document.querySelector(".college-input");
 
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
@@ -158,11 +159,13 @@ departmentSelect.addEventListener("change", () => {
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
     majorInputDiv.style.display = "none";
+    collegeInputDiv.style.display = "none"; // Hide college input for SHS
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
     courseInputDiv.style.display = "block";
     majorInputDiv.style.display = "block";
+    collegeInputDiv.style.display = "block"; // Show college input for non-SHS
   }
 });
 
@@ -189,7 +192,6 @@ function updateCourses(department) {
     resolve();
   });
 }
-
 
 function updateMajors(course, department) {
   return new Promise((resolve) => {
@@ -223,9 +225,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const majorInput = document.querySelector('.major-input');
   const strandInput = document.querySelector('.strand-input');
   const gradeInput = document.querySelector('.grade-input');
-  const schoolInput = document.querySelector('.school-input');
-  const schoolSelect = document.getElementById("school-select");
+  const schoolSelect = document.querySelector('.school select');
+  const schoolInput = document.getElementById("school-input");
   const specifySchoolInput = document.getElementById("specify-school-input");
+  const campusDeptInput = document.querySelector('.campusdept select');
+  const collegeInput = document.querySelector('.college select');
 
   if (!libraryIdInput || !validUntilInput || !patronSelect) {
     console.error("One or more required DOM elements are missing.");
@@ -237,62 +241,53 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Function to toggle visibility based on patron type
   const toggleFields = (patronType) => {
-    if (patronType === 'visitor') {
-      departmentInput.style.display = 'none';
-      courseInput.style.display = 'none';
-      majorInput.style.display = 'none';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolInput.style.display = 'block';
-    } else if (patronType === 'faculty' || patronType === 'admin') {
-      departmentInput.style.display = 'block';
-      courseInput.style.display = 'none';
-      majorInput.style.display = 'none';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolInput.style.display = 'none';
-      
-      if (patronType === 'admin') {
-        // Modify department options for Admin
-        departmentInput.querySelector('select').innerHTML = `
-          <option value="" disabled selected>Select Department</option>
-          <option value="registrar">Registrar</option>
-          <option value="cashier">Cashier</option>
-          <option value="other">Other Admin</option>
-        `;
-      } else {
-        // Default department options for faculty
-        departmentInput.querySelector('select').innerHTML = `
-          <option value="" disabled selected>Select Department</option>
-          <option value="cics">College of Information in Computing Sciences (CICS)</option>
-          <option value="cte">College of Teacher Education (CTE)</option>
-          <option value="cet">College of Engineering and Technology (CET)</option>
-          <option value="cahss">College of Arts, Humanities and Social Sciences (CAHSS)</option>
-          <option value="sba">School of Business Administration (SBA)</option>
-          <option value="cme">College of Marine Education (CME)</option>
-          <option value="cpes">College of Physical Education and Sport (CPES)</option>
-          <option value="ite">Institute of Technical Education (ITE)</option>
-          <option value="shs">Senior High School (SHS)</option>
-          <option value="gs">Graduate School</option>
-        `;
-      }
-    } else {
-      departmentInput.style.display = 'block';
-      courseInput.style.display = 'block';
-      majorInput.style.display = 'block';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolInput.style.display = 'none';
+    switch (patronType) {
+      case 'visitor':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolInput.style.display = 'block';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'none';
+        break;
+      case 'faculty':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolInput.style.display = 'none';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'block';
+        break;
+      case 'admin':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolInput.style.display = 'none';
+        campusDeptInput.style.display = 'block';
+        collegeInput.style.display = 'none';
+        break;
+      default: // student
+        departmentInput.style.display = 'block';
+        courseInput.style.display = 'block';
+        majorInput.style.display = 'block';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolInput.style.display = 'none';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'none'; // Hide college input for students
+        break;
     }
   };
 
   // Function to toggle the 'Specify School' input field visibility
   const toggleSpecifySchoolInput = () => {
-    if (schoolSelect.value === 'other') {
-      specifySchoolInput.style.display = 'block'; // Show the input field
-    } else {
-      specifySchoolInput.style.display = 'none'; // Hide the input field
-    }
+    specifySchoolInput.style.display = schoolSelect.value === 'other' ? 'block' : 'none';
   };
 
   // Event listener for when patron type is changed
@@ -353,8 +348,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-
-
 // Generate Random Token
 function generateRandomToken() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -365,32 +358,16 @@ function generateRandomToken() {
   return token;
 }
 
-// Add event listener for the patron select element
-document.querySelector(".patron select").addEventListener("change", () => {
-  const patron = document.querySelector(".patron select").value;
 
-  if (patron === "faculty" || patron === "admin") {
-    // Hide the course and major inputs when "faculty" or "admin" is selected
-    document.querySelector(".course-input").style.display = "none";
-    document.querySelector(".major-input").style.display = "none";
-
-    // Show department and retain other necessary fields
-    document.querySelector(".department-input").style.display = "block";  // Assuming department is already visible
-  } else {
-    // Show the course and major inputs again when the patron is not "faculty" or "admin"
-    document.querySelector(".course-input").style.display = "block";
-    document.querySelector(".major-input").style.display = "block";
-  }
-});
-
-
+// Submit Form
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
 
+  // Collecting general data
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
-
+  
   const patron = document.querySelector(".patron select").value.trim();
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
@@ -404,75 +381,87 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
   const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
-  if (!patron || !lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
-    alert("Please fill out all required fields before submitting.");
-    return;
-  }
-
   const libraryIdNo = libraryIdInput.value.trim();
   const validUntil = validUntilInput.value.trim();
 
+  // Collecting additional admin-related data
+  const collegeSelect = document.querySelector(".data-input.college select").value.trim(); // Department/College
+  const schoolSelect = document.getElementById("school-select").value.trim(); // School
+  const specifySchoolInput = document.getElementById("specify-school-input").value.trim(); // If "Other" is selected
+  const campusDept = document.querySelector(".data-input.campusdept select").value.trim(); // Campus Department
+
+  // Prepare the data object to store in Firestore
+  const userData = {
+    libraryIdNo,
+    validUntil,
+    patron,
+    lastName,
+    firstName,
+    middleInitial,
+    gender,
+    department,
+    course: department === "shs" ? "" : course, // Only save course if not SHS
+    major: department === "shs" ? "" : major, // Only save major if not SHS
+    grade: department === "shs" ? grade : "", // Only save grade if SHS
+    strand: department === "shs" ? strand : "", // Only save strand if SHS
+    schoolYear,
+    semester,
+    timesEntered: 1, // Start timesEntered with 1
+    token: generateRandomToken(),
+    timestamp: new Date(), // Save the timestamp of submission
+    collegeSelect, // Selected college/department
+    schoolSelect, // Selected school
+    specifySchool: schoolSelect === "other" ? specifySchoolInput : "", // Specify school if "Other" is selected
+    campusDept, // Selected campus department
+  };
+
   try {
-    const userRef = doc(db, "LIDC_Users", libraryIdNo);
+    const userRef = doc(db, "LIDC_Users", libraryIdNo); // Reference to Firestore document
+
+    // Check if the user already exists (if they do, update their document)
     const userSnap = await getDoc(userRef);
 
-    // Always update the timestamp
-    const updatedEntry = {
-        timestamp: new Date(), // Always update the timestamp when submitting
-    };
-
     if (userSnap.exists()) {
-        // Update existing user: increment timesEntered and update timestamp
-        const userData = userSnap.data();
-        const updatedTimesEntered = (userData.timesEntered || 0) + 1;
-
-        // Merge the existing data with the updated timesEntered and timestamp
-        await setDoc(userRef, { timesEntered: updatedTimesEntered, timestamp: updatedEntry.timestamp }, { merge: true });
-        alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
+      // If user already exists, update their document
+      await setDoc(userRef, userData, { merge: true }); // merge to update only necessary fields
+      alert("Welcome back! Your entry has been recorded.");
     } else {
-        // Create new user: generate and store QR code
-        const newEntry = {
-            libraryIdNo,
-            validUntil,
-            patron,
-            lastName,
-            firstName,
-            middleInitial,
-            gender,
-            department,
-            course: department === "shs" ? "" : course,
-            major: department === "shs" ? "" : major,
-            grade: department === "shs" ? grade : "",
-            strand: department === "shs" ? strand : "",
-            schoolYear,
-            semester,
-            timesEntered: 1,
-            token: generateRandomToken(),
-            timestamp: updatedEntry.timestamp, // Store the updated timestamp
-        };
-
-        const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${newEntry.token}`;
-
-        // Generate QR code and save it as a URL
-        const qrCodeData = await generateQRCodeData(fullQRCodeLink);
-        newEntry.qrCodeURL = fullQRCodeLink; // Store the link in Firestore
-        newEntry.qrCodeImage = qrCodeData; // Store the image data in Firestore
-
-        await setDoc(userRef, newEntry);
-
-        // Download the QR code locally
-        downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
-
-        alert("Data successfully submitted!");
+      // If new user, create a new document
+      await setDoc(userRef, userData); // Create new document
+      alert("Data successfully submitted!");
     }
 
+    // You can also generate QR code for this entry and save it
+    const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
+    const qrCodeData = await generateQRCodeData(fullQRCodeLink);
+
+    // Save the QR code data to Firestore
+    await setDoc(userRef, {
+      qrCodeURL: fullQRCodeLink,
+      qrCodeImage: qrCodeData
+    }, { merge: true });
+
+    // Trigger the download of QR code
+    downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+
+    // Reload the page after successful submission
     window.location.reload();
-} catch (error) {
+  } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
-}
-
+  }
 });
+
+// Show or hide the "Specify School" input field when "Other" is selected
+document.getElementById("school-select").addEventListener("change", (event) => {
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  if (event.target.value === "other") {
+    specifySchoolInput.style.display = "block"; // Show the input field
+  } else {
+    specifySchoolInput.style.display = "none"; // Hide the input field
+  }
+});
+
 
 
 // Generate QR code and return as Base64 data URL
@@ -700,3 +689,62 @@ if (libraryIdNo && token) {
     console.error("Error fetching document:", error);
   });
 }
+
+
+// Autofill Library ID and Valid Until Date
+document.addEventListener("DOMContentLoaded", async () => {
+  const libraryIdInput = document.getElementById("library-id");
+  const validUntilInput = document.getElementById("valid-until");
+
+  if (!libraryIdInput || !validUntilInput) {
+    console.error("One or more required DOM elements are missing.");
+    return;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
+
+  if (libraryIdNo) {
+    // Fetch data for the specific Library ID
+    try {
+      const userRef = doc(db, "LIDC_Users", libraryIdNo);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        // Fill input fields with existing user data
+        libraryIdInput.value = userData.libraryIdNo;
+        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
+        displayUserData(userData); // Load other user details
+      } else {
+        console.error("No data found for the given Library ID.");
+        alert("User not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  } else {
+    // Generate a new Library ID
+    try {
+      const libraryIdQuery = query(
+        collection(db, "LIDC_Users"),
+        orderBy("libraryIdNo", "desc"),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(libraryIdQuery);
+      let newId = "00001"; // Default ID if no data exists
+      if (!querySnapshot.empty) {
+        const lastDoc = querySnapshot.docs[0];
+        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
+        newId = (lastId + 1).toString().padStart(5, "0");
+      }
+      libraryIdInput.value = newId;
+    } catch (error) {
+      console.error("Error generating Library ID:", error);
+      alert("Failed to generate Library ID. Please refresh the page.");
+    }
+
+    // Set Valid Until Date for new entries
+    validUntilInput.value = "July 2025";
+  }
+});

@@ -116,6 +116,7 @@
             <option value="TVL">TVL</option>
           </select>
         </div>
+
         <div class="data-input grade-input" style="display: none">
           <p>Grade</p>
           <select id="grade-select" required>
@@ -124,7 +125,35 @@
             <option value="Grade 12">Grade 12</option>
           </select>
         </div>
-        <div class="data-input school-input">
+        <div class="data-input college" style="display: none">
+          <p>Department</p>
+          <select required>
+            <option value="" disabled selected class="select-option">
+              Select Department
+            </option>
+            <option value="cics">
+              College of Information in Computing Sciences (CICS)
+            </option>
+            <option value="cte">College of Teacher Education (CTE)</option>
+            <option value="cet" data-college="true">
+              College of Engineering and Technology (CET)
+            </option>
+            <option value="cahss" data-college="true">
+              College of Arts, Humanities and Social Sciences (CAHSS)
+            </option>
+            <option value="sba">School of Business Administration (SBA)</option>
+            <option value="cme" data-college="true">
+              College of Marine Education (CME)
+            </option>
+            <option value="cpes">
+              College of Physical Education and Sport (CPES)
+            </option>
+            <option value="ite">Institute of Technical Education (ITE)</option>
+            <option value="shs">Senior High School (SHS)</option>
+            <option value="gs">Graduate School</option>
+          </select>
+        </div>
+        <div class="data-input school">
           <p>School</p>
           <select id="school-select" required>
             <option value="" disabled selected>Select School</option>
@@ -142,9 +171,9 @@
             placeholder="Specify School"
           />
         </div>
-        <div class="data-input campusdept-input" style="display: none">
+        <div class="data-input campusdept" style="display: none">
           <p>Department</p>
-          <select id="campusdept-select" required>
+          <select required>
             <option value="" disabled selected>Select Department</option>
             <option value="">Registrar</option>
             <option value="">Medical and Dental Clinic</option>

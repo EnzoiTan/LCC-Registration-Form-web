@@ -184,6 +184,10 @@ input {
   padding: 5px 10px 5px 10px;
 }
 
+span {
+  color: red;
+}
+
 select {
   border: grey solid 1px;
   background-color: #f3f3f3;

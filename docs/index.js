@@ -77,6 +77,13 @@ const departmentCourses = {
       ],
     },
   },
+  cahss:{
+    courses: {
+      "BS Development Communication (BSDevcom)": ["None"],
+      "Bachelor of Fine Arts (BFA)": ["None"],
+      "Batsilyer sa Sining ng Filipino (BATSIFIL)": ["None"],
+    },
+  },
   sba: {
     courses: {
       "BS Entrepreneurship": ["None"],
@@ -425,27 +432,32 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      // If user already exists, update their document
-      await setDoc(userRef, userData, { merge: true }); // merge to update only necessary fields
+      // If user already exists, increment timesEntered
+      const existingData = userSnap.data();
+      const updatedData = {
+        ...existingData,
+        timesEntered: existingData.timesEntered + 1 // Increment timesEntered
+      };
+      await setDoc(userRef, updatedData, { merge: true }); // merge to update only necessary fields
       alert("Welcome back! Your entry has been recorded.");
     } else {
       // If new user, create a new document
       await setDoc(userRef, userData); // Create new document
       alert("Data successfully submitted!");
+
+      // You can also generate QR code for this entry and save it
+      const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
+      const qrCodeData = await generateQRCodeData(fullQRCodeLink);
+
+      // Save the QR code data to Firestore
+      await setDoc(userRef, {
+        qrCodeURL: fullQRCodeLink,
+        qrCodeImage: qrCodeData
+      }, { merge: true });
+
+      // Trigger the download of QR code
+      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
     }
-
-    // You can also generate QR code for this entry and save it
-    const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
-    const qrCodeData = await generateQRCodeData(fullQRCodeLink);
-
-    // Save the QR code data to Firestore
-    await setDoc(userRef, {
-      qrCodeURL: fullQRCodeLink,
-      qrCodeImage: qrCodeData
-    }, { merge: true });
-
-    // Trigger the download of QR code
-    downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
 
     // Reload the page after successful submission
     window.location.reload();

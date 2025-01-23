@@ -56,7 +56,11 @@
         </div>
         <div class="data-input middle-initial">
           <p>M.I.</p>
-          <input type="text" />
+          <input
+            type="text"
+            maxlength="1"
+            oninput="this.value = this.value.toUpperCase();"
+          />
         </div>
         <div class="data-input gender">
           <p>Gender</p>

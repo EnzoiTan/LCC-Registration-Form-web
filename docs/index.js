@@ -432,14 +432,15 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      // If user already exists, increment timesEntered
+      // If user already exists, update their document
       const existingData = userSnap.data();
       const updatedData = {
         ...existingData,
+        ...userData, // Merge new data with existing data
         timesEntered: existingData.timesEntered + 1 // Increment timesEntered
       };
       await setDoc(userRef, updatedData, { merge: true }); // merge to update only necessary fields
-      alert("Welcome back! Your entry has been recorded.");
+      alert("Your data has been updated and entry count incremented.");
     } else {
       // If new user, create a new document
       await setDoc(userRef, userData); // Create new document

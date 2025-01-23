@@ -419,10 +419,35 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   };
 
   try {
-    const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-    await setDoc(userRef, newEntry);
-    alert("Data successfully submitted!");
-    generateQRCodeAndDownload(newEntry);  // Generate QR and trigger download
+    const userRef = doc(db, "LIDC_Users", libraryIdNo); // Reference to Firestore document
+
+    // Check if the user already exists (if they do, update their document)
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      // If user already exists, update their document
+      await setDoc(userRef, userData, { merge: true }); // merge to update only necessary fields
+      alert("Welcome back! Your entry has been recorded.");
+    } else {
+      // If new user, create a new document
+      await setDoc(userRef, userData); // Create new document
+      alert("Data successfully submitted!");
+    }
+
+    // You can also generate QR code for this entry and save it
+    const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
+    const qrCodeData = await generateQRCodeData(fullQRCodeLink);
+
+    // Save the QR code data to Firestore
+    await setDoc(userRef, {
+      qrCodeURL: fullQRCodeLink,
+      qrCodeImage: qrCodeData
+    }, { merge: true });
+
+    // Trigger the download of QR code
+    downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+
+    // Reload the page after successful submission
     window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
@@ -430,161 +455,135 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   }
 });
 
+// Show or hide the "Specify School" input field when "Other" is selected
+document.getElementById("school-select").addEventListener("change", (event) => {
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  if (event.target.value === "other") {
+    specifySchoolInput.style.display = "block"; // Show the input field
+  } else {
+    specifySchoolInput.style.display = "none"; // Hide the input field
+  }
+});
+
+
+
+// Generate QR code and return as Base64 data URL
+async function generateQRCodeData(data) {
+  try {
+    const qrDataURL = await QRCode.toDataURL(JSON.stringify(data), {
+      width: 256,
+      margin: 1,
+    });
+    return qrDataURL;
+  } catch (error) {
+    console.error("Error generating QR Code:", error);
+    throw error;
+  }
+}
+
+
+// Auto-download the QR code
+function downloadQRCode(dataURL, filename) {
+  const link = document.createElement("a");
+  link.href = dataURL;
+  link.download = filename;
+  link.click();
+}
+
+
 async function fetchUserData(libraryId) {
   try {
-    // Reference to the user document in Firestore
     const userRef = doc(db, "LIDC_Users", libraryId);
     const docSnap = await getDoc(userRef);
 
     if (docSnap.exists()) {
-      // Get data from the document
       const userData = docSnap.data();
-      console.log("User data fetched: ", userData);
-
-      // Display data on the webpage
       displayUserData(userData);
     } else {
-      console.log("No such document!");
+      console.error("No such document!");
     }
   } catch (error) {
-    console.error("Error fetching user data: ", error);
+    console.error("Error fetching user data:", error);
   }
 }
 
-// Display user data in the form
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 
-  // Update fields in the form
-  document.getElementById("library-id").value = userData.libraryIdNo;
-  document.getElementById("valid-until").value = userData.validUntil || "July 2025";
-  document.querySelector(".patron select").value = userData.patron;
-  document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
-  document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
-  document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial || "";
-  document.querySelector(".gender select").value = userData.gender;
-  document.getElementById("department-select").value = userData.department;
-
-  // Update courses and majors based on department
+  // Update courses and majors based on department and course
   await updateCourses(userData.department);
   document.getElementById("course-select").value = userData.course;
   await updateMajors(userData.course, userData.department);
   document.getElementById("major-select").value = userData.major;
 
-  // Display additional user details in a div
+  // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Type of Patron: ${userData.patron}</p>
-    <p>Name: ${userData.firstName} ${userData.middleInitial || ""} ${userData.lastName}</p>
+    <p>Type of Patron: ${userData.libraryIdNo}</p>
+    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.course || "N/A"}</p>
-    <p>Major: ${userData.major || "N/A"}</p>
-    <p>Grade: ${userData.grade || "N/A"}</p>
-    <p>Strand: ${userData.strand || "N/A"}</p>
+    <p>Course: ${userData.course}</p>
+    <p>Major: ${userData.major}</p>
+    <p>Grade: ${userData.grade}</p>
+    <p>Strand: ${userData.strand}</p>
     <p>School Year: ${userData.schoolYear}</p>
     <p>Semester: ${userData.semester}</p>
     <p>Valid Until: ${userData.validUntil}</p>
-    <p>Times Entered: ${userData.timesEntered || 0}</p>
+    <p>Token: ${userData.token}</p>
   `;
 
-  // Show/hide fields based on patron type
-  toggleFields(userData.patron);
-}
-
-// Toggle visibility of fields based on patron type
-function toggleFields(patronType) {
-  const departmentInput = document.querySelector(".department-input");
-  const courseInput = document.querySelector(".course-input");
-  const majorInput = document.querySelector(".major-input");
-  const strandInput = document.querySelector(".strand-input");
-  const gradeInput = document.querySelector(".grade-input");
-  const schoolSelect = document.querySelector(".school");
-  const specifySchoolInput = document.getElementById("specify-school-input");
-  const campusDeptInput = document.querySelector(".campusdept");
-  const collegeInput = document.querySelector(".college");
-
-  switch (patronType) {
-    case "visitor":
-      departmentInput.style.display = "none";
-      courseInput.style.display = "none";
-      majorInput.style.display = "none";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "block";
-      campusDeptInput.style.display = "none";
-      collegeInput.style.display = "none";
-      specifySchoolInput.style.display = "block";
-      break;
-    case "faculty":
-      departmentInput.style.display = "none";
-      courseInput.style.display = "none";
-      majorInput.style.display = "none";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "none";
-      campusDeptInput.style.display = "none";
-      collegeInput.style.display = "block";
-      specifySchoolInput.style.display = "none";
-      break;
-    case "admin":
-      departmentInput.style.display = "none";
-      courseInput.style.display = "none";
-      majorInput.style.display = "none";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "none";
-      campusDeptInput.style.display = "block";
-      collegeInput.style.display = "none";
-      specifySchoolInput.style.display = "none";
-      break;
-    default: // student
-      departmentInput.style.display = "block";
-      courseInput.style.display = "block";
-      majorInput.style.display = "block";
-      strandInput.style.display = "none";
-      gradeInput.style.display = "none";
-      schoolSelect.style.display = "none";
-      campusDeptInput.style.display = "none";
-      collegeInput.style.display = "none";
-      specifySchoolInput.style.display = "none";
-      break;
+  // Hide or show fields based on department
+  if (userData.department === "shs") {
+    document.querySelector(".course-input").style.display = "none";
+    document.querySelector(".major-input").style.display = "none";
+    document.querySelector(".grade-input").style.display = "block";
+    document.querySelector(".strand-input").style.display = "block"; 
+  } else {
+    document.querySelector(".course-input").style.display = "block";
+    document.querySelector(".major-input").style.display = "block";
+    document.querySelector(".grade-input").style.display = "none";
+    document.querySelector(".strand-input").style.display = "none";
   }
-}
-
-if (libraryIdNo) {
-  fetchUserData(libraryIdNo).catch((error) => {
-    console.error("Error fetching user data:", error);
-  });
 }
 
 // Generate QR Code and trigger download
 async function generateQRCodeAndDownload(newEntry) {
   const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
 
-  QRCode.toDataURL(fullQRCodeLink, async (err, url) => {
-    if (err) {
-      console.error("Error generating QR code:", err);
-      return;
-    }
+  try {
+    // Generate QR code URL
+    QRCode.toDataURL(fullQRCodeLink, async (err, url) => {
+      if (err) {
+        console.error("Error generating QR code:", err);
+        alert("Failed to generate QR code. Please try again.");
+        return;
+      }
 
-    // Trigger the download automatically
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
-    link.click();
+      // Trigger QR code download
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
+      link.click();
 
-    // Save the full QR code URL to Firestore
-    try {
-      // Save the full QR code link (URL) to Firestore
-      const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
-      await setDoc(userRef, { qrCodeURL: fullQRCodeLink }, { merge: true }); // Save the full QR code URL
-
-      console.log("Full QR code URL saved to Firestore.");
-    } catch (error) {
-      console.error("Error saving full QR code URL to Firestore:", error);
-    }
-  });
+      // Save the QR code URL to Firestore
+      try {
+        const userRef = doc(db, "LIDC_Users", newEntry.libraryIdNo);
+        await setDoc(
+          userRef,
+          { qrCodeURL: fullQRCodeLink, qrImageURL: url },
+          { merge: true }
+        );
+        console.log("QR code URL and image data saved to Firestore.");
+      } catch (error) {
+        console.error("Error saving QR code to Firestore:", error);
+        alert("Failed to save QR code to Firestore.");
+      }
+    });
+  } catch (error) {
+    console.error("Unexpected error generating QR code:", error);
+  }
 }
+
 
 // Handle URL parameters
 const urlParams = new URLSearchParams(window.location.search);
@@ -693,3 +692,62 @@ if (libraryIdNo && token) {
     console.error("Error fetching document:", error);
   });
 }
+
+
+// Autofill Library ID and Valid Until Date
+document.addEventListener("DOMContentLoaded", async () => {
+  const libraryIdInput = document.getElementById("library-id");
+  const validUntilInput = document.getElementById("valid-until");
+
+  if (!libraryIdInput || !validUntilInput) {
+    console.error("One or more required DOM elements are missing.");
+    return;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
+
+  if (libraryIdNo) {
+    // Fetch data for the specific Library ID
+    try {
+      const userRef = doc(db, "LIDC_Users", libraryIdNo);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        // Fill input fields with existing user data
+        libraryIdInput.value = userData.libraryIdNo;
+        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
+        displayUserData(userData); // Load other user details
+      } else {
+        console.error("No data found for the given Library ID.");
+        alert("User not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  } else {
+    // Generate a new Library ID
+    try {
+      const libraryIdQuery = query(
+        collection(db, "LIDC_Users"),
+        orderBy("libraryIdNo", "desc"),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(libraryIdQuery);
+      let newId = "00001"; // Default ID if no data exists
+      if (!querySnapshot.empty) {
+        const lastDoc = querySnapshot.docs[0];
+        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
+        newId = (lastId + 1).toString().padStart(5, "0");
+      }
+      libraryIdInput.value = newId;
+    } catch (error) {
+      console.error("Error generating Library ID:", error);
+      alert("Failed to generate Library ID. Please refresh the page.");
+    }
+
+    // Set Valid Until Date for new entries
+    validUntilInput.value = "July 2025";
+  }
+});

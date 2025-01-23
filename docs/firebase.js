@@ -43,9 +43,9 @@ fetchUserData(libraryIdNo).then((userData) => {
     document.getElementById("semester-select").value = userData.semester || ""; // Semester
 
     // Additional Fields for Campus, School, and Department
-    document.getElementById("school-select").value = userData.school || ""; // School
+    document.querySelector(".school select").value = userData.school || ""; // School
     document.getElementById("specify-school-input").value = userData.specifySchool || ""; // Specify School if 'Other'
-    document.getElementById("campusdept-select").value = userData.campusDepartment || ""; // Campus Department
+    document.querySelector(".campusdept select").value = userData.campusDepartment || ""; // Campus Department
 
     // Handle fields visibility based on patron type and department
     handleFieldsBasedOnPatron(userData.patron);

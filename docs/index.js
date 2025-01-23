@@ -240,51 +240,65 @@ document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
 
   // Function to toggle visibility based on patron type
-  const toggleFields = (patronType) => {
-    switch (patronType) {
-      case 'visitor':
-        departmentInput.style.display = 'none';
-        courseInput.style.display = 'none';
-        majorInput.style.display = 'none';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'block';
-        campusDeptInput.style.display = 'none';
-        collegeInput.style.display = 'none';
-        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
-        break;
-      case 'faculty':
-        departmentInput.style.display = 'none';
-        courseInput.style.display = 'none';
-        majorInput.style.display = 'none';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
-        campusDeptInput.style.display = 'none';
-        collegeInput.style.display = 'block';
-        break;
-      case 'admin':
-        departmentInput.style.display = 'none';
-        courseInput.style.display = 'none';
-        majorInput.style.display = 'none';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
-        campusDeptInput.style.display = 'block';
-        collegeInput.style.display = 'none';
-        break;
-      default: // student
-        departmentInput.style.display = 'block';
-        courseInput.style.display = 'block';
-        majorInput.style.display = 'block';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
-        campusDeptInput.style.display = 'none';
-        collegeInput.style.display = 'none'; // Hide college input for students
-        break;
-    }
-  };
+  // Function to toggle visibility based on patron type
+const toggleFields = (patronType) => {
+  const departmentInput = document.querySelector(".department-input");
+  const courseInput = document.querySelector(".course-input");
+  const majorInput = document.querySelector(".major-input");
+  const strandInput = document.querySelector(".strand-input");
+  const gradeInput = document.querySelector(".grade-input");
+  const schoolSelect = document.querySelector(".school");
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  const campusDeptInput = document.querySelector(".campusdept");
+  const collegeInput = document.querySelector(".college");
+
+  switch (patronType) {
+    case "visitor":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "block"; // Show school input for visitors
+      campusDeptInput.style.display = "none"; // Hide office input for visitors
+      collegeInput.style.display = "none"; // Hide college input for visitors
+      specifySchoolInput.style.display = "block"; // Show specify school input
+      break;
+    case "faculty":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none"; // Hide school input for faculty
+      campusDeptInput.style.display = "none"; // Hide office input for faculty
+      collegeInput.style.display = "block"; // Show college input for faculty
+      specifySchoolInput.style.display = "none"; // Hide specify school input
+      break;
+    case "admin":
+      departmentInput.style.display = "none";
+      courseInput.style.display = "none";
+      majorInput.style.display = "none";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none"; // Hide school input for admin
+      campusDeptInput.style.display = "block"; // Show office input for admin
+      collegeInput.style.display = "none"; // Hide college input for admin
+      specifySchoolInput.style.display = "none"; // Hide specify school input
+      break;
+    default: // student
+      departmentInput.style.display = "block";
+      courseInput.style.display = "block";
+      majorInput.style.display = "block";
+      strandInput.style.display = "none";
+      gradeInput.style.display = "none";
+      schoolSelect.style.display = "none"; // Hide school input for students
+      campusDeptInput.style.display = "none"; // Hide office input for students
+      collegeInput.style.display = "none"; // Hide college input for students
+      specifySchoolInput.style.display = "none"; // Hide specify school input
+      break;
+  }
+};
 
   const toggleSpecifySchoolInput = () => {
     if (schoolSelected && schoolSelected.value === 'other') {

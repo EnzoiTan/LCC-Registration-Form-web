@@ -226,6 +226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const strandInput = document.querySelector('.strand-input');
   const gradeInput = document.querySelector('.grade-input');
   const schoolSelect = document.querySelector('.school');
+  const schoolSelected = document.querySelector('.school select');
   const specifySchoolInput = document.getElementById("specify-school-input");
   const campusDeptInput = document.querySelector('.campusdept');
   const collegeInput = document.querySelector('.college');
@@ -250,6 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         schoolSelect.style.display = 'block';
         campusDeptInput.style.display = 'none';
         collegeInput.style.display = 'none';
+        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
         break;
       case 'faculty':
         departmentInput.style.display = 'none';
@@ -284,9 +286,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
-  // Function to toggle the 'Specify School' input field visibility
   const toggleSpecifySchoolInput = () => {
-    specifySchoolInput.style.display = schoolSelect.value === 'other' ? 'block' : 'none';
+    if (schoolSelected && schoolSelected.value === 'other') {
+      specifySchoolInput.style.display = 'block'; // Show the input field
+    } else {
+      specifySchoolInput.style.display = 'none'; // Hide the input field
+    }
   };
 
   // Event listener for when patron type is changed
@@ -358,7 +363,6 @@ function generateRandomToken() {
 }
 
 
-// Submit Form
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();

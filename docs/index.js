@@ -371,6 +371,7 @@ function generateRandomToken() {
 
 
 // Submit Form
+// Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
 
@@ -394,12 +395,6 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   const libraryIdNo = libraryIdInput.value.trim();
   const validUntil = validUntilInput.value.trim();
 
-  // Collecting additional admin-related data
-  const collegeSelect = document.querySelector(".data-input.college select").value.trim(); // Department/College
-  const schoolSelect = document.getElementById("school-select").value.trim(); // School
-  const specifySchoolInput = document.getElementById("specify-school-input").value.trim(); // If "Other" is selected
-  const campusDept = document.querySelector(".data-input.campusdept select").value.trim(); // Campus Department
-
   // Prepare the data object to store in Firestore
   const userData = {
     libraryIdNo,
@@ -418,10 +413,6 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     semester,
     timesEntered: 1, // Start timesEntered with 1
     timestamp: new Date(), // Save the timestamp of submission
-    collegeSelect, // Selected college/department
-    schoolSelect, // Selected school
-    specifySchool: schoolSelect === "other" ? specifySchoolInput : "", // Specify school if "Other" is selected
-    campusDept, // Selected campus department
   };
 
   try {

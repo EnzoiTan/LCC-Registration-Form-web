@@ -371,7 +371,6 @@ function generateRandomToken() {
 }
 
 // Submit Form
-// Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
 
@@ -519,24 +518,32 @@ function downloadQRCode(dataURL, filename) {
 }
 
 
-async function fetchUserData(libraryId) {
-  try {
-    const userRef = doc(db, "LIDC_Users", libraryId);
-    const docSnap = await getDoc(userRef);
+document.addEventListener("DOMContentLoaded", async () => {
+  const libraryIdNo = urlParams.get('libraryIdNo');
+  const token = urlParams.get('token');
 
-    if (docSnap.exists()) {
-      const userData = docSnap.data();
-      displayUserData(userData);
-    } else {
-      console.error("No such document!");
+  if (libraryIdNo && token) {
+    try {
+      const userData = await fetchUserData(libraryIdNo);
+      if (userData && userData.token === token) {
+        displayUserData(userData);
+      } else {
+        console.error("User data not found or token mismatch.");
+      }
+    } catch (error) {
+      console.error("Error fetching document:", error);
     }
-  } catch (error) {
-    console.error("Error fetching user data:", error);
   }
-}
+});
 
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
+  
+  // Check if userDataDiv is found
+  if (!userDataDiv) {
+    console.error("Element with ID 'user-data' not found.");
+    return; // Exit the function if the element is not found
+  }
 
   // Update courses and majors based on department and course
   await updateCourses(userData.department);

@@ -372,12 +372,14 @@ function generateRandomToken() {
 }
 
 // Submit Form
+// Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
 
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
 
+  const patron = document.querySelector(".patron select").value.trim();
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
   const middleInitial = document.querySelector(".name-inputs .data-input:nth-child(3) input").value.trim();
@@ -390,13 +392,13 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
   const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
+  const libraryIdNo = libraryIdInput.value.trim();
+  const validUntil = validUntilInput.value.trim();
+
   if (!lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
     alert("Please fill out all required fields before submitting.");
     return;
   }
-
-  const libraryIdNo = libraryIdInput.value.trim();
-  const validUntil = validUntilInput.value.trim();
 
   try {
     const userRef = doc(db, "LIDC_Users", libraryIdNo);
@@ -411,30 +413,62 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
       alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
     } else {
       // Create new user: generate and store QR code
-      const newEntry = {
+      const userData = {
         libraryIdNo,
         validUntil,
+        patron,
         lastName,
         firstName,
         middleInitial,
         gender,
         department,
-        course: department === "shs" ? "" : course,
-        major: department === "shs" ? "" : major,
-        grade: department === "shs" ? grade : "",
-        strand: department === "shs" ? strand : "",
+        course: department === "shs" ? "" : course, // Only save course if not SHS
+        major: department === "shs" ? "" : major, // Only save major if not SHS
+        grade: department === "shs" ? grade : "", // Only save grade if SHS
+        strand: department === "shs" ? strand : "", // Only save strand if SHS
         schoolYear,
         semester,
-        timesEntered: 1,
-        token: generateRandomToken(),
+        timesEntered: 1, // Start timesEntered with 1
+        timestamp: new Date(), // Save the timestamp of submission
       };
 
-      const qrCodeData = await generateQRCodeData(newEntry);
-      newEntry.qrCode = qrCodeData; // Store the QR code as Base64 in Firestore
+      if (userSnap.exists()) {
+            // If user already exists, get the existing token and increment timesEntered
+            const existingUserData = userSnap.data();
+            const updatedTimesEntered = existingUserData.timesEntered + 1;
+            const existingToken = existingUserData.token; // Keep the existing token
+      
+            // Update the user document with the new data (without generating a new token)
+            await setDoc(userRef, {
+              ...userData,
+              timesEntered: updatedTimesEntered,
+              token: existingToken // Keep the existing token
+            }, { merge: true });
+      
+            alert("Welcome back! Your entry has been updated.");
+          } else {
+            // If new user, create a new token and a new document
+            const newToken = generateRandomToken(); // Generate a new token for the new user
+      
+            // Update the userData object to include the new token
+            userData.token = newToken;
+      
+            await setDoc(userRef, userData); // Create new document
+            alert("Data successfully submitted!");
+          }
 
-      await setDoc(userRef, newEntry);
+      // Generate QR code
+      const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${userData.libraryIdNo}&token=${generateRandomToken()}`;
+      const qrCodeData = await generateQRCodeData(userData);
 
-      // Download the QR code locally
+      // Save all user data including QR code
+      await setDoc(userRef, {
+        ...userData, // Spread operator to include all user data
+        qrCodeURL: fullQRCodeLink,
+        qrCodeImage: qrCodeData
+      }, { merge: true });
+
+      // Trigger the download of QR code (only for new users)
       downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
 
       alert("Data successfully submitted!");
@@ -460,7 +494,6 @@ async function generateQRCodeData(data) {
     throw error;
   }
 }
-
 
 // Auto-download the QR code
 function downloadQRCode(dataURL, filename) {
@@ -526,8 +559,8 @@ async function displayUserData(userData) {
 }
 
 // Generate QR Code and trigger download
-async function generateQRCodeAndDownload(newEntry) {
-  const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${newEntry.libraryIdNo}&token=${newEntry.token}`;
+async function generateQRCodeAndDownload(userData) {
+  const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${userData.libraryIdNo}&token=${userData.token}`;
 
   try {
     // Generate QR code URL
@@ -541,7 +574,7 @@ async function generateQRCodeAndDownload(newEntry) {
       // Trigger QR code download
       const link = document.createElement("a");
       link.href = url;
-      link.download = `QR_Code_LibraryID_${newEntry.libraryIdNo}.png`;
+      link.download = `QR_Code_LibraryID_${userData.libraryIdNo}.png`;
       link.click();
 
       // Save the QR code URL to Firestore
@@ -670,3 +703,61 @@ if (libraryIdNo && token) {
     console.error("Error fetching document:", error);
   });
 }
+
+// Autofill Library ID and Valid Until Date
+document.addEventListener("DOMContentLoaded", async () => {
+  const libraryIdInput = document.getElementById("library-id");
+  const validUntilInput = document.getElementById("valid-until");
+
+  if (!libraryIdInput || !validUntilInput) {
+    console.error("One or more required DOM elements are missing.");
+    return;
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
+
+  if (libraryIdNo) {
+    // Fetch data for the specific Library ID
+    try {
+      const userRef = doc(db, "LIDC_Users", libraryIdNo);
+      const docSnap = await getDoc(userRef);
+
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        // Fill input fields with existing user data
+        libraryIdInput.value = userData.libraryIdNo;
+        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
+        displayUserData(userData); // Load other user details
+      } else {
+        console.error("No data found for the given Library ID.");
+        alert("User not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  } else {
+    // Generate a new Library ID
+    try {
+      const libraryIdQuery = query(
+        collection(db, "LIDC_Users"),
+        orderBy("libraryIdNo", "desc"),
+        limit(1)
+      );
+      const querySnapshot = await getDocs(libraryIdQuery);
+      let newId = "00001"; // Default ID if no data exists
+      if (!querySnapshot.empty) {
+        const lastDoc = querySnapshot.docs[0];
+        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
+        newId = (lastId + 1).toString().padStart(5, "0");
+      }
+      libraryIdInput.value = newId;
+    } catch (error) {
+      console.error("Error generating Library ID:", error);
+      alert("Failed to generate Library ID. Please refresh the page.");
+    }
+
+    // Set Valid Until Date for new entries
+    validUntilInput.value = "July 2025";
+  }
+});

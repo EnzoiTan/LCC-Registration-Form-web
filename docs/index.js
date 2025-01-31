@@ -17,7 +17,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Department and courses data
 const departmentCourses = {
   cics: {
     courses: {
@@ -78,7 +77,7 @@ const departmentCourses = {
       ],
     },
   },
-  cahss: {
+  cahss:{
     courses: {
       "BS Development Communication (BSDevcom)": ["None"],
       "Bachelor of Fine Arts (BFA)": ["None"],
@@ -157,7 +156,6 @@ const majorInputDiv = document.querySelector(".major-input");
 const strandInputDiv = document.querySelector(".strand-input");
 const collegeInputDiv = document.querySelector(".college-input");
 
-// Event listeners for department and course selection
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
   updateCourses(selectedDepartment);
@@ -184,7 +182,6 @@ courseSelect.addEventListener("change", () => {
   updateMajors(selectedCourse, selectedDepartment);
 });
 
-// Functions to update courses and majors
 function updateCourses(department) {
   return new Promise((resolve) => {
     courseSelect.innerHTML = '<option value="" disabled selected>Select Course</option>';
@@ -230,12 +227,93 @@ document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
   const patronSelect = document.querySelector('.patron select');
+  const departmentInput = document.querySelector('.department-input');
+  const courseInput = document.querySelector('.course-input');
+  const majorInput = document.querySelector('.major-input');
+  const strandInput = document.querySelector('.strand-input');
+  const gradeInput = document.querySelector('.grade-input');
+  const schoolSelect = document.querySelector('.school');
+  const schoolSelected = document.querySelector('.school select');
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  const campusDeptInput = document.querySelector('.campusdept');
+  const collegeInput = document.querySelector('.college');
+
+  if (!libraryIdInput || !validUntilInput || !patronSelect) {
+    console.error("One or more required DOM elements are missing.");
+    return;
+  }
 
   const urlParams = new URLSearchParams(window.location.search);
   const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
-  const token = urlParams.get('token'); // Get token from URL
 
-  if (libraryIdNo && token) {
+  // Function to toggle visibility based on patron type
+  const toggleFields = (patronType) => {
+    switch (patronType) {
+      case 'visitor':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'block';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'none';
+        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
+        break;
+      case 'faculty':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'none';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'block';
+        break;
+      case 'admin':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'none';
+        campusDeptInput.style.display = 'block';
+        collegeInput.style.display = 'none';
+        break;
+      default: // student
+        departmentInput.style.display = 'block';
+        courseInput.style.display = 'block';
+        majorInput.style.display = 'block';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'none';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'none'; // Hide college input for students
+        break;
+    }
+  };
+
+  const toggleSpecifySchoolInput = () => {
+    if (schoolSelected && schoolSelected.value === 'other') {
+      specifySchoolInput.style.display = 'block'; // Show the input field
+    } else {
+      specifySchoolInput.style.display = 'none'; // Hide the input field
+    }
+  };
+
+  // Event listener for when patron type is changed
+  patronSelect.addEventListener('change', (event) => {
+    toggleFields(event.target.value);
+  });
+
+  // Event listener for when school selection is changed
+  schoolSelect.addEventListener('change', toggleSpecifySchoolInput);
+
+  // Initialize fields based on default patron type and school selection
+  toggleFields(patronSelect.value);
+  toggleSpecifySchoolInput(); // Ensure the input field is shown/hidden based on the current selection
+
+  if (libraryIdNo) {
     // Fetch data for the specific Library ID
     try {
       const userRef = doc(db, "LIDC_Users", libraryIdNo);
@@ -247,7 +325,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         libraryIdInput.value = userData.libraryIdNo;
         validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
         displayUserData(userData); // Load other user details
-        toggleFields(userData.patron); // Apply visibility logic based on patron type
+        toggleFields(userData.patronType); // Apply visibility logic based on patron type
       } else {
         console.error("No data found for the given Library ID.");
         alert("User not found.");
@@ -281,61 +359,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// Function to toggle visibility based on patron type
-const toggleFields = (patronType) => {
-  const departmentInput = document.querySelector('.department-input');
-  const courseInput = document.querySelector('.course-input');
-  const majorInput = document.querySelector('.major-input');
-  const strandInput = document.querySelector('.strand-input');
-  const gradeInput = document.querySelector('.grade-input');
-  const schoolSelect = document.querySelector('.school');
-  const campusDeptInput = document.querySelector('.campusdept');
-  const collegeInput = document.querySelector('.college');
 
-  switch (patronType) {
-    case 'visitor':
-      departmentInput.style.display = 'none';
-      courseInput.style.display = 'none';
-      majorInput.style.display = 'none';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolSelect.style.display = 'block';
-      campusDeptInput.style.display = 'none';
-      collegeInput.style.display = 'none';
-      break;
-    case 'faculty':
-      departmentInput.style.display = 'none';
-      courseInput.style.display = 'none';
-      majorInput.style.display = 'none';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolSelect.style.display = 'none';
-      campusDeptInput.style.display = 'none';
-      collegeInput.style.display = 'block';
-      break;
-    case 'admin':
-      departmentInput.style.display = 'none';
-      courseInput.style.display = 'none';
-      majorInput.style.display = 'none';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolSelect.style.display = 'none';
-      campusDeptInput.style.display = 'block';
-      collegeInput.style.display = 'none';
-      break;
-    default: // student
-      departmentInput.style.display = 'block';
-      courseInput.style.display = 'block';
-      majorInput.style.display = 'block';
-      strandInput.style.display = 'none';
-      gradeInput.style.display = 'none';
-      schoolSelect.style.display = 'none';
-      campusDeptInput.style.display = 'none';
-      collegeInput.style.display = 'none'; // Hide college input for students
-      break;
+// Generate Random Token
+function generateRandomToken() {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 16; i++) {
+    token += characters.charAt(Math.floor(Math.random() * characters.length));
   }
-};
+  return token;
+}
 
+// Submit Form
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
@@ -365,75 +400,101 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   }
 
   try {
-    const userRef = doc(db, "LIDC_Users", libraryIdNo);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      // Update existing user: increment timesEntered
-      const userData = userSnap.data();
-      const updatedTimesEntered = (userData.timesEntered || 0) + 1;
-
-      await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
-      alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
-    } else {
-      // Create new user
-      const userData = {
-        libraryIdNo,
-        validUntil,
-        patron,
-        lastName,
-        firstName,
-        middleInitial,
-        gender,
-        department,
-        course: department === "shs" ? "" : course,
-        major: department === "shs" ? "" : major,
-        grade: department === "shs" ? grade : "",
-        strand: department === "shs" ? strand : "",
-        schoolYear,
-        semester,
-        timesEntered: 1,
-        timestamp: new Date(),
-      };
-
-      const newToken = generateRandomToken(); // Generate a new token for the new user
-      userData.token = newToken;
-
-      await setDoc(userRef, userData); // Create new document
-      alert("Data successfully submitted!");
-
-      // Generate QR code
-      const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${userData.libraryIdNo}&token=${newToken}`;
-      const qrCodeData = await generateQRCodeData(userData);
-
-      // Save all user data including QR code
-      await setDoc(userRef, {
-        ...userData,
-        qrCodeURL: fullQRCodeLink,
-        qrCodeImage: qrCodeData
-      }, { merge: true });
-
-      // Trigger the download of QR code
-      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
-    }
-
-    // Reload the page after successful submission
-    window.location.reload();
-  } catch (error) {
-    console.error("Error storing data:", error);
-    alert("An error occurred while storing the data. Please try again.");
-  }
+        const userRef = doc(db, "LIDC_Users", libraryIdNo);
+        const userSnap = await getDoc(userRef);
+    
+        if (userSnap.exists()) {
+          // Update existing user: increment timesEntered
+          const userData = userSnap.data();
+          const updatedTimesEntered = (userData.timesEntered || 0) + 1;
+    
+          await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
+          alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
+        } else {
+          // Create new user: generate and store QR code
+          const userData = {
+            libraryIdNo,
+            validUntil,
+            patron,
+            lastName,
+            firstName,
+            middleInitial,
+            gender,
+            department,
+            course: department === "shs" ? "" : course, // Only save course if not SHS
+            major: department === "shs" ? "" : major, // Only save major if not SHS
+            grade: department === "shs" ? grade : "", // Only save grade if SHS
+            strand: department === "shs" ? strand : "", // Only save strand if SHS
+            schoolYear,
+            semester,
+            timesEntered: 1, // Start timesEntered with 1
+            timestamp: new Date(), // Save the timestamp of submission
+          };
+    
+          if (userSnap.exists()) {
+                // If user already exists, get the existing token and increment timesEntered
+                const existingUserData = userSnap.data();
+                const updatedTimesEntered = existingUserData.timesEntered + 1;
+                const existingToken = existingUserData.token; // Keep the existing token
+          
+                // Update the user document with the new data (without generating a new token)
+                await setDoc(userRef, {
+                  ...userData,
+                  timesEntered: updatedTimesEntered,
+                  token: existingToken // Keep the existing token
+                }, { merge: true });
+          
+                alert("Welcome back! Your entry has been updated.");
+              } else {
+                // If new user, create a new token and a new document
+                const newToken = generateRandomToken(); // Generate a new token for the new user
+          
+                // Update the userData object to include the new token
+                userData.token = newToken;
+          
+                await setDoc(userRef, userData); // Create new document
+                alert("Data successfully submitted!");
+              }
+    
+          // Generate QR code
+          const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${userData.libraryIdNo}&token=${generateRandomToken()}`;
+          const qrCodeData = await generateQRCodeData(userData);
+    
+          // Save all user data including QR code
+          await setDoc(userRef, {
+            ...userData, // Spread operator to include all user data
+            qrCodeURL: fullQRCodeLink,
+            qrCodeImage: qrCodeData
+          }, { merge: true });
+    
+          // Trigger the download of QR code (only for new users)
+          downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+    
+          // Display updated data on the form
+        document.querySelector(".patron select").value = userData.patron;
+        document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+        document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+        document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
+        document.querySelector(".gender select").value = userData.gender;
+        document.getElementById("library-id").value = userData.libraryIdNo;
+        document.getElementById("department-select").value = userData.department;
+        document.getElementById("course-select").value = userData.course;
+        document.getElementById("major-select").value = userData.major;
+        document.getElementById("grade-select").value = userData.grade;
+        document.getElementById("strand-select").value = userData.strand;
+        document.getElementById("year-select").value = userData.schoolYear;
+        document.getElementById("semester-select").value = userData.semester;
+        document.getElementById("valid-until").value = userData.validUntil;
+    
+          alert("Data successfully submitted!");
+        }
+    
+        window.location.reload();
+      } catch (error) {
+        console.error("Error storing data:", error);
+        alert("An error occurred while storing the data. Please try again.");
+      }
 });
-
-// Generate Random Token
-function generateRandomToken() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  for (let i = 0; i < 16; i++) {
-    token += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return token;
-}
 
 // Generate QR code and return as Base64 data URL
 async function generateQRCodeData(data) {
@@ -457,58 +518,7 @@ function downloadQRCode(dataURL, filename) {
   link.click();
 }
 
-// Display User Data
-async function displayUserData(userData) {
-  const userDataDiv = document.getElementById("user-data");
 
-  // Update courses and majors based on department and course
-  await updateCourses(userData.department);
-  document.getElementById("course-select").value = userData.course;
-  await updateMajors(userData.course, userData.department);
-  document.getElementById("major-select").value = userData.major;
-
-  // Display each field of the fetched user data
-  userDataDiv.innerHTML = `
-    <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
-    <p>Department: ${userData.department}</p>
-    <p>Course: ${userData.course}</p>
-    <p>Major: ${userData.major}</p>
-    <p>Grade: ${userData.grade}</p>
-    <p>Strand: ${userData.strand}</p>
-    <p>School Year: ${userData.schoolYear}</p>
-    <p>Semester: ${userData.semester}</p>
-    <p>Valid Until: ${userData.validUntil}</p>
-    <p>Token: ${userData.token}</p>
-  `;
-
-  // Hide or show fields based on department
-  if (userData.department === "shs") {
-    document.querySelector(".course-input").style.display = "none";
-    document.querySelector(".major-input").style.display = "none";
-    document.querySelector(".grade-input").style.display = "block";
-    document.querySelector(".strand-input").style.display = "block"; 
-  } else {
-    document.querySelector(".course-input").style.display = "block";
-    document.querySelector(".major-input").style.display = "block";
-    document.querySelector(".grade-input").style.display = "none";
-    document.querySelector(".strand-input").style.display = "none";
-  }
-}
-
-if (libraryIdNo && token) {
-  fetchUserData(libraryIdNo).then((userData) => {
-    if (userData && userData.token === token) {
-      displayUserData(userData);
-    } else {
-      console.error("User data not found or token mismatch.");
-    }
-  }).catch((error) => {
-    console.error("Error fetching document:", error);
-  });
-}
-
-// Fetch User Data
 async function fetchUserData(libraryId) {
   try {
     const userRef = doc(db, "LIDC_Users", libraryId);
@@ -516,18 +526,15 @@ async function fetchUserData(libraryId) {
 
     if (docSnap.exists()) {
       const userData = docSnap.data();
-      return userData; // Return user data for further processing
+      displayUserData(userData);
     } else {
       console.error("No such document!");
-      return null; // Return null if no document found
     }
   } catch (error) {
-    console.error
-
-("Error fetching user data:", error);
-    throw error; // Rethrow error for handling
+    console.error("Error fetching user data:", error);
   }
 }
+
 async function displayUserData(userData) {
   const userDataDiv = document.getElementById("user-data");
 

@@ -200,7 +200,6 @@ function updateCourses(department) {
   });
 }
 
-
 function updateMajors(course, department) {
   return new Promise((resolve) => {
     majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
@@ -470,6 +469,22 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
 
       // Trigger the download of QR code (only for new users)
       downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+
+      // Display updated data on the form
+    document.querySelector(".patron select").value = userData.patron;
+    document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
+    document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
+    document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
+    document.querySelector(".gender select").value = userData.gender;
+    document.getElementById("library-id").value = userData.libraryIdNo;
+    document.getElementById("department-select").value = userData.department;
+    document.getElementById("course-select").value = userData.course;
+    document.getElementById("major-select").value = userData.major;
+    document.getElementById("grade-select").value = userData.grade;
+    document.getElementById("strand-select").value = userData.strand;
+    document.getElementById("year-select").value = userData.schoolYear;
+    document.getElementById("semester-select").value = userData.semester;
+    document.getElementById("valid-until").value = userData.validUntil;
 
       alert("Data successfully submitted!");
     }

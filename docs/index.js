@@ -77,13 +77,6 @@ const departmentCourses = {
       ],
     },
   },
-  cahss:{
-    courses: {
-      "BS Development Communication (BSDevcom)": ["None"],
-      "Bachelor of Fine Arts (BFA)": ["None"],
-      "Batsilyer sa Sining ng Filipino (BATSIFIL)": ["None"],
-    },
-  },
   sba: {
     courses: {
       "BS Entrepreneurship": ["None"],
@@ -154,7 +147,6 @@ const gradeInputDiv = document.querySelector(".grade-input");
 const courseInputDiv = document.querySelector(".course-input");
 const majorInputDiv = document.querySelector(".major-input");
 const strandInputDiv = document.querySelector(".strand-input");
-const collegeInputDiv = document.querySelector(".college-input");
 
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
@@ -166,13 +158,11 @@ departmentSelect.addEventListener("change", () => {
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
     majorInputDiv.style.display = "none";
-    collegeInputDiv.style.display = "none"; // Hide college input for SHS
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
     courseInputDiv.style.display = "block";
     majorInputDiv.style.display = "block";
-    collegeInputDiv.style.display = "block"; // Show college input for non-SHS
   }
 });
 
@@ -200,6 +190,7 @@ function updateCourses(department) {
   });
 }
 
+
 function updateMajors(course, department) {
   return new Promise((resolve) => {
     majorSelect.innerHTML = '<option value="" disabled selected>Select Major</option>';
@@ -226,92 +217,14 @@ function updateMajors(course, department) {
 document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
-  const patronSelect = document.querySelector('.patron select');
-  const departmentInput = document.querySelector('.department-input');
-  const courseInput = document.querySelector('.course-input');
-  const majorInput = document.querySelector('.major-input');
-  const strandInput = document.querySelector('.strand-input');
-  const gradeInput = document.querySelector('.grade-input');
-  const schoolSelect = document.querySelector('.school');
-  const schoolSelected = document.querySelector('.school select');
-  const specifySchoolInput = document.getElementById("specify-school-input");
-  const campusDeptInput = document.querySelector('.campusdept');
-  const collegeInput = document.querySelector('.college');
 
-  if (!libraryIdInput || !validUntilInput || !patronSelect) {
+  if (!libraryIdInput || !validUntilInput) {
     console.error("One or more required DOM elements are missing.");
     return;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
   const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
-
-  // Function to toggle visibility based on patron type
-  const toggleFields = (patronType) => {
-    switch (patronType) {
-      case 'visitor':
-        departmentInput.style.display = 'none';
-        courseInput.style.display = 'none';
-        majorInput.style.display = 'none';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'block';
-        campusDeptInput.style.display = 'none';
-        collegeInput.style.display = 'none';
-        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
-        break;
-      case 'faculty':
-        departmentInput.style.display = 'none';
-        courseInput.style.display = 'none';
-        majorInput.style.display = 'none';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
-        campusDeptInput.style.display = 'none';
-        collegeInput.style.display = 'block';
-        break;
-      case 'admin':
-        departmentInput.style.display = 'none';
-        courseInput.style.display = 'none';
-        majorInput.style.display = 'none';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
-        campusDeptInput.style.display = 'block';
-        collegeInput.style.display = 'none';
-        break;
-      default: // student
-        departmentInput.style.display = 'block';
-        courseInput.style.display = 'block';
-        majorInput.style.display = 'block';
-        strandInput.style.display = 'none';
-        gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
-        campusDeptInput.style.display = 'none';
-        collegeInput.style.display = 'none'; // Hide college input for students
-        break;
-    }
-  };
-
-  const toggleSpecifySchoolInput = () => {
-    if (schoolSelected && schoolSelected.value === 'other') {
-      specifySchoolInput.style.display = 'block'; // Show the input field
-    } else {
-      specifySchoolInput.style.display = 'none'; // Hide the input field
-    }
-  };
-
-  // Event listener for when patron type is changed
-  patronSelect.addEventListener('change', (event) => {
-    toggleFields(event.target.value);
-  });
-
-  // Event listener for when school selection is changed
-  schoolSelect.addEventListener('change', toggleSpecifySchoolInput);
-
-  // Initialize fields based on default patron type and school selection
-  toggleFields(patronSelect.value);
-  toggleSpecifySchoolInput(); // Ensure the input field is shown/hidden based on the current selection
 
   if (libraryIdNo) {
     // Fetch data for the specific Library ID
@@ -325,7 +238,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         libraryIdInput.value = userData.libraryIdNo;
         validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
         displayUserData(userData); // Load other user details
-        toggleFields(userData.patronType); // Apply visibility logic based on patron type
       } else {
         console.error("No data found for the given Library ID.");
         alert("User not found.");
@@ -359,6 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+
 // Generate Random Token
 function generateRandomToken() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -369,17 +282,13 @@ function generateRandomToken() {
   return token;
 }
 
-
-// Submit Form
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
 
-  // Collecting general data
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
-  
-  const patron = document.querySelector(".patron select").value.trim();
+
   const lastName = document.querySelector(".name-inputs .data-input:nth-child(1) input").value.trim();
   const firstName = document.querySelector(".name-inputs .data-input:nth-child(2) input").value.trim();
   const middleInitial = document.querySelector(".name-inputs .data-input:nth-child(3) input").value.trim();
@@ -392,109 +301,62 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
   const schoolYear = document.querySelector(".year-sem-inputs .data-input:nth-child(1) select").value.trim();
   const semester = document.querySelector(".year-sem-inputs .data-input:nth-child(2) select").value.trim();
 
+  if (!lastName || !firstName || !gender || !department || (!course && department !== "shs") || (!major && department !== "shs") || !schoolYear || !semester || (department === "shs" && (!grade || !strand))) {
+    alert("Please fill out all required fields before submitting.");
+    return;
+  }
+
   const libraryIdNo = libraryIdInput.value.trim();
   const validUntil = validUntilInput.value.trim();
 
-  // Prepare the data object to store in Firestore
-  const userData = {
-    libraryIdNo,
-    validUntil,
-    patron,
-    lastName,
-    firstName,
-    middleInitial,
-    gender,
-    department,
-    course: department === "shs" ? "" : course, // Only save course if not SHS
-    major: department === "shs" ? "" : major, // Only save major if not SHS
-    grade: department === "shs" ? grade : "", // Only save grade if SHS
-    strand: department === "shs" ? strand : "", // Only save strand if SHS
-    schoolYear,
-    semester,
-    timesEntered: 1, // Start timesEntered with 1
-    timestamp: new Date(), // Save the timestamp of submission
-  };
-
   try {
-    const userRef = doc(db, "LIDC_Users", libraryIdNo); // Reference to Firestore document
-
-    // Check if the user already exists (if they do, update their document)
+    const userRef = doc(db, "LIDC_Users", libraryIdNo);
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      // If user already exists, get the existing token and increment timesEntered
-      const existingUserData = userSnap.data();
-      const updatedTimesEntered = existingUserData.timesEntered + 1;
-      const existingToken = existingUserData.token; // Keep the existing token
+      // Update existing user: increment timesEntered
+      const userData = userSnap.data();
+      const updatedTimesEntered = (userData.timesEntered || 0) + 1;
 
-      // Update the user document with the new data (without generating a new token)
-      await setDoc(userRef, {
-        ...userData,
-        timesEntered: updatedTimesEntered,
-        token: existingToken // Keep the existing token
-      }, { merge: true });
-
-      alert("Welcome back! Your entry has been updated.");
+      await setDoc(userRef, { timesEntered: updatedTimesEntered }, { merge: true });
+      alert(`Welcome back! Entry recorded. Total visits: ${updatedTimesEntered}`);
     } else {
-      // If new user, create a new token and a new document
-      const newToken = generateRandomToken(); // Generate a new token for the new user
+      // Create new user: generate and store QR code
+      const newEntry = {
+        libraryIdNo,
+        validUntil,
+        lastName,
+        firstName,
+        middleInitial,
+        gender,
+        department,
+        course: department === "shs" ? "" : course,
+        major: department === "shs" ? "" : major,
+        grade: department === "shs" ? grade : "",
+        strand: department === "shs" ? strand : "",
+        schoolYear,
+        semester,
+        timesEntered: 1,
+        token: generateRandomToken(),
+      };
 
-      // Update the userData object to include the new token
-      userData.token = newToken;
+      const qrCodeData = await generateQRCodeData(newEntry);
+      newEntry.qrCode = qrCodeData; // Store the QR code as Base64 in Firestore
 
-      await setDoc(userRef, userData); // Create new document
+      await setDoc(userRef, newEntry);
+
+      // Download the QR code locally
+      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
+
       alert("Data successfully submitted!");
     }
 
-    // Generate QR code for this entry and save it (for new user only)
-    const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token || existingToken}`;
-    const qrCodeData = await generateQRCodeData(fullQRCodeLink);
-
-    // Save the QR code data to Firestore (even for new users)
-    await setDoc(userRef, {
-      qrCodeURL: fullQRCodeLink,
-      qrCodeImage: qrCodeData
-    }, { merge: true });
-
-    // Trigger the download of QR code (only for new users)
-    if (!userSnap.exists()) {
-      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
-    }
-
-    // Display updated data on the form
-    document.querySelector(".patron select").value = userData.patron;
-    document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
-    document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
-    document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
-    document.querySelector(".gender select").value = userData.gender;
-    document.getElementById("library-id").value = userData.libraryIdNo;
-    document.getElementById("department-select").value = userData.department;
-    document.getElementById("course-select").value = userData.course;
-    document.getElementById("major-select").value = userData.major;
-    document.getElementById("grade-select").value = userData.grade;
-    document.getElementById("strand-select").value = userData.strand;
-    document.getElementById("year-select").value = userData.schoolYear;
-    document.getElementById("semester-select").value = userData.semester;
-    document.getElementById("valid-until").value = userData.validUntil;
-
+    window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
   }
 });
-
-
-// Show or hide the "Specify School" input field when "Other" is selected
-document.getElementById("school-select").addEventListener("change", (event) => {
-  const specifySchoolInput = document.getElementById("specify-school-input");
-  if (event.target.value === "other") {
-    specifySchoolInput.style.display = "block"; // Show the input field
-  } else {
-    specifySchoolInput.style.display = "none"; // Hide the input field
-  }
-});
-
-
 
 // Generate QR code and return as Base64 data URL
 async function generateQRCodeData(data) {
@@ -548,7 +410,6 @@ async function displayUserData(userData) {
   // Display each field of the fetched user data
   userDataDiv.innerHTML = `
     <p>Library ID: ${userData.libraryIdNo}</p>
-    <p>Type of Patron: ${userData.libraryIdNo}</p>
     <p>Name: ${userData.firstName} ${userData.middleInitial} ${userData.lastName}</p>
     <p>Department: ${userData.department}</p>
     <p>Course: ${userData.course}</p>
@@ -622,7 +483,6 @@ const token = urlParams.get('token');
 if (libraryIdNo && token) {
   fetchUserData(libraryIdNo).then((userData) => {
     if (userData && userData.token === token) {
-      document.querySelector(".patron select").value = userData.patron;
       document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
       document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
       document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
@@ -721,62 +581,3 @@ if (libraryIdNo && token) {
     console.error("Error fetching document:", error);
   });
 }
-
-
-// Autofill Library ID and Valid Until Date
-document.addEventListener("DOMContentLoaded", async () => {
-  const libraryIdInput = document.getElementById("library-id");
-  const validUntilInput = document.getElementById("valid-until");
-
-  if (!libraryIdInput || !validUntilInput) {
-    console.error("One or more required DOM elements are missing.");
-    return;
-  }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
-
-  if (libraryIdNo) {
-    // Fetch data for the specific Library ID
-    try {
-      const userRef = doc(db, "LIDC_Users", libraryIdNo);
-      const docSnap = await getDoc(userRef);
-
-      if (docSnap.exists()) {
-        const userData = docSnap.data();
-        // Fill input fields with existing user data
-        libraryIdInput.value = userData.libraryIdNo;
-        validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
-        displayUserData(userData); // Load other user details
-      } else {
-        console.error("No data found for the given Library ID.");
-        alert("User not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  } else {
-    // Generate a new Library ID
-    try {
-      const libraryIdQuery = query(
-        collection(db, "LIDC_Users"),
-        orderBy("libraryIdNo", "desc"),
-        limit(1)
-      );
-      const querySnapshot = await getDocs(libraryIdQuery);
-      let newId = "00001"; // Default ID if no data exists
-      if (!querySnapshot.empty) {
-        const lastDoc = querySnapshot.docs[0];
-        const lastId = parseInt(lastDoc.data().libraryIdNo, 10);
-        newId = (lastId + 1).toString().padStart(5, "0");
-      }
-      libraryIdInput.value = newId;
-    } catch (error) {
-      console.error("Error generating Library ID:", error);
-      alert("Failed to generate Library ID. Please refresh the page.");
-    }
-
-    // Set Valid Until Date for new entries
-    validUntilInput.value = "July 2025";
-  }
-});

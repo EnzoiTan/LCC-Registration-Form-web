@@ -77,6 +77,13 @@ const departmentCourses = {
       ],
     },
   },
+  cahss:{
+    courses: {
+      "BS Development Communication (BSDevcom)": ["None"],
+      "Bachelor of Fine Arts (BFA)": ["None"],
+      "Batsilyer sa Sining ng Filipino (BATSIFIL)": ["None"],
+    },
+  },
   sba: {
     courses: {
       "BS Entrepreneurship": ["None"],
@@ -147,6 +154,7 @@ const gradeInputDiv = document.querySelector(".grade-input");
 const courseInputDiv = document.querySelector(".course-input");
 const majorInputDiv = document.querySelector(".major-input");
 const strandInputDiv = document.querySelector(".strand-input");
+const collegeInputDiv = document.querySelector(".college-input");
 
 departmentSelect.addEventListener("change", () => {
   const selectedDepartment = departmentSelect.value;
@@ -158,11 +166,13 @@ departmentSelect.addEventListener("change", () => {
     strandInputDiv.style.display = "block";
     courseInputDiv.style.display = "none";
     majorInputDiv.style.display = "none";
+    collegeInputDiv.style.display = "none";
   } else {
     gradeInputDiv.style.display = "none";
     strandInputDiv.style.display = "none";
     courseInputDiv.style.display = "block";
     majorInputDiv.style.display = "block";
+    collegeInputDiv.style.display = "block";
   }
 });
 
@@ -217,14 +227,92 @@ function updateMajors(course, department) {
 document.addEventListener("DOMContentLoaded", async () => {
   const libraryIdInput = document.getElementById("library-id");
   const validUntilInput = document.getElementById("valid-until");
+  const patronSelect = document.querySelector('.patron select');
+  const departmentInput = document.querySelector('.department-input');
+  const courseInput = document.querySelector('.course-input');
+  const majorInput = document.querySelector('.major-input');
+  const strandInput = document.querySelector('.strand-input');
+  const gradeInput = document.querySelector('.grade-input');
+  const schoolSelect = document.querySelector('.school');
+  const schoolSelected = document.querySelector('.school select');
+  const specifySchoolInput = document.getElementById("specify-school-input");
+  const campusDeptInput = document.querySelector('.campusdept');
+  const collegeInput = document.querySelector('.college');
 
-  if (!libraryIdInput || !validUntilInput) {
+  if (!libraryIdInput || !validUntilInput || !patronSelect) {
     console.error("One or more required DOM elements are missing.");
     return;
   }
 
   const urlParams = new URLSearchParams(window.location.search);
   const libraryIdNo = urlParams.get('libraryIdNo'); // Get ID from URL if available
+
+  // Function to toggle visibility based on patron type
+  const toggleFields = (patronType) => {
+    switch (patronType) {
+      case 'visitor':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'block';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'none';
+        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
+        break;
+      case 'faculty':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'none';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'block';
+        break;
+      case 'admin':
+        departmentInput.style.display = 'none';
+        courseInput.style.display = 'none';
+        majorInput.style.display = 'none';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'none';
+        campusDeptInput.style.display = 'block';
+        collegeInput.style.display = 'none';
+        break;
+      default: // student
+        departmentInput.style.display = 'block';
+        courseInput.style.display = 'block';
+        majorInput.style.display = 'block';
+        strandInput.style.display = 'none';
+        gradeInput.style.display = 'none';
+        schoolSelect.style.display = 'none';
+        campusDeptInput.style.display = 'none';
+        collegeInput.style.display = 'none'; // Hide college input for students
+        break;
+    }
+  };
+
+  const toggleSpecifySchoolInput = () => {
+    if (schoolSelected && schoolSelected.value === 'other') {
+      specifySchoolInput.style.display = 'block'; // Show the input field
+    } else {
+      specifySchoolInput.style.display = 'none'; // Hide the input field
+    }
+  };
+
+  // Event listener for when patron type is changed
+  patronSelect.addEventListener('change', (event) => {
+    toggleFields(event.target.value);
+  });
+
+  // Event listener for when school selection is changed
+  schoolSelect.addEventListener('change', toggleSpecifySchoolInput);
+
+  // Initialize fields based on default patron type and school selection
+  toggleFields(patronSelect.value);
+  toggleSpecifySchoolInput(); // Ensure the input field is shown/hidden based on the current selection
 
   if (libraryIdNo) {
     // Fetch data for the specific Library ID
@@ -238,6 +326,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         libraryIdInput.value = userData.libraryIdNo;
         validUntilInput.value = userData.validUntil || "July 2025"; // Default if missing
         displayUserData(userData); // Load other user details
+        toggleFields(userData.patronType); // Apply visibility logic based on patron type
       } else {
         console.error("No data found for the given Library ID.");
         alert("User not found.");

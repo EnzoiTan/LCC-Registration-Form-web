@@ -77,13 +77,6 @@ const departmentCourses = {
       ],
     },
   },
-  cahss:{
-    courses: {
-      "BS Development Communication (BSDevcom)": ["None"],
-      "Bachelor of Fine Arts (BFA)": ["None"],
-      "Batsilyer sa Sining ng Filipino (BATSIFIL)": ["None"],
-    },
-  },
   sba: {
     courses: {
       "BS Entrepreneurship": ["None"],
@@ -233,7 +226,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const strandInput = document.querySelector('.strand-input');
   const gradeInput = document.querySelector('.grade-input');
   const schoolSelect = document.querySelector('.school');
-  const schoolSelected = document.querySelector('.school select');
   const specifySchoolInput = document.getElementById("specify-school-input");
   const campusDeptInput = document.querySelector('.campusdept');
   const collegeInput = document.querySelector('.college');
@@ -258,7 +250,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         schoolSelect.style.display = 'block';
         campusDeptInput.style.display = 'none';
         collegeInput.style.display = 'none';
-        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
         break;
       case 'faculty':
         departmentInput.style.display = 'none';
@@ -293,12 +284,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   };
 
+  // Function to toggle the 'Specify School' input field visibility
   const toggleSpecifySchoolInput = () => {
-    if (schoolSelected && schoolSelected.value === 'other') {
-      specifySchoolInput.style.display = 'block'; // Show the input field
-    } else {
-      specifySchoolInput.style.display = 'none'; // Hide the input field
-    }
+    specifySchoolInput.style.display = schoolSelect.value === 'other' ? 'block' : 'none';
   };
 
   // Event listener for when patron type is changed
@@ -371,6 +359,7 @@ function generateRandomToken() {
 
 
 // Submit Form
+// Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
 
@@ -417,6 +406,7 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     schoolYear,
     semester,
     timesEntered: 1, // Start timesEntered with 1
+    token: generateRandomToken(),
     timestamp: new Date(), // Save the timestamp of submission
     collegeSelect, // Selected college/department
     schoolSelect, // Selected school
@@ -431,67 +421,35 @@ document.querySelector(".submit").addEventListener("click", async (event) => {
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
-      // If user already exists, get the existing token and increment timesEntered
-      const existingUserData = userSnap.data();
-      const updatedTimesEntered = existingUserData.timesEntered + 1;
-      const existingToken = existingUserData.token; // Keep the existing token
-
-      // Update the user document with the new data (without generating a new token)
-      await setDoc(userRef, {
-        ...userData,
-        timesEntered: updatedTimesEntered,
-        token: existingToken // Keep the existing token
-      }, { merge: true });
-
-      alert("Welcome back! Your entry has been updated.");
+      // If user already exists, update their document
+      await setDoc(userRef, userData, { merge: true }); // merge to update only necessary fields
+      alert("Welcome back! Your entry has been recorded.");
     } else {
-      // If new user, create a new token and a new document
-      const newToken = generateRandomToken(); // Generate a new token for the new user
-
-      // Update the userData object to include the new token
-      userData.token = newToken;
-
+      // If new user, create a new document
       await setDoc(userRef, userData); // Create new document
       alert("Data successfully submitted!");
     }
 
-    // Generate QR code for this entry and save it (for new user only)
+    // You can also generate QR code for this entry and save it
     const fullQRCodeLink = `https://enzoitan.github.io/LCC-Registration-Form-web/?libraryIdNo=${libraryIdNo}&token=${userData.token}`;
     const qrCodeData = await generateQRCodeData(fullQRCodeLink);
 
-    // Save the QR code data to Firestore (even for new users)
+    // Save the QR code data to Firestore
     await setDoc(userRef, {
       qrCodeURL: fullQRCodeLink,
       qrCodeImage: qrCodeData
     }, { merge: true });
 
-    // Trigger the download of QR code (only for new users)
-    if (!userSnap.exists()) {
-      downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
-    }
+    // Trigger the download of QR code
+    downloadQRCode(qrCodeData, `${libraryIdNo}.png`);
 
-    // Display updated data on the form
-    document.querySelector(".patron select").value = userData.patron;
-    document.querySelector(".name-inputs .data-input:nth-child(1) input").value = userData.lastName;
-    document.querySelector(".name-inputs .data-input:nth-child(2) input").value = userData.firstName;
-    document.querySelector(".name-inputs .data-input:nth-child(3) input").value = userData.middleInitial;
-    document.querySelector(".gender select").value = userData.gender;
-    document.getElementById("library-id").value = userData.libraryIdNo;
-    document.getElementById("department-select").value = userData.department;
-    document.getElementById("course-select").value = userData.course;
-    document.getElementById("major-select").value = userData.major;
-    document.getElementById("grade-select").value = userData.grade;
-    document.getElementById("strand-select").value = userData.strand;
-    document.getElementById("year-select").value = userData.schoolYear;
-    document.getElementById("semester-select").value = userData.semester;
-    document.getElementById("valid-until").value = userData.validUntil;
-
+    // Reload the page after successful submission
+    window.location.reload();
   } catch (error) {
     console.error("Error storing data:", error);
     alert("An error occurred while storing the data. Please try again.");
   }
 });
-
 
 // Show or hide the "Specify School" input field when "Other" is selected
 document.getElementById("school-select").addEventListener("change", (event) => {

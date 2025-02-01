@@ -225,11 +225,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const majorInput = document.querySelector('.major-input');
   const strandInput = document.querySelector('.strand-input');
   const gradeInput = document.querySelector('.grade-input');
-  const schoolSelect = document.querySelector('.school');
-  const schoolSelected = document.querySelector('.school select');
+  const schoolSelect = document.querySelector('.school select');
+  const schoolInput = document.getElementById("school-input");
   const specifySchoolInput = document.getElementById("specify-school-input");
-  const campusDeptInput = document.querySelector('.campusdept');
-  const collegeInput = document.querySelector('.college');
+  const campusDeptInput = document.querySelector('.campusdept select');
+  const collegeInput = document.querySelector('.college select');
 
   if (!libraryIdInput || !validUntilInput || !patronSelect) {
     console.error("One or more required DOM elements are missing.");
@@ -248,10 +248,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         majorInput.style.display = 'none';
         strandInput.style.display = 'none';
         gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'block';
+        schoolInput.style.display = 'block';
         campusDeptInput.style.display = 'none';
         collegeInput.style.display = 'none';
-        toggleSpecifySchoolInput(); // Call this to ensure "Specify School" toggles properly
         break;
       case 'faculty':
         departmentInput.style.display = 'none';
@@ -259,7 +258,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         majorInput.style.display = 'none';
         strandInput.style.display = 'none';
         gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
+        schoolInput.style.display = 'none';
         campusDeptInput.style.display = 'none';
         collegeInput.style.display = 'block';
         break;
@@ -269,7 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         majorInput.style.display = 'none';
         strandInput.style.display = 'none';
         gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
+        schoolInput.style.display = 'none';
         campusDeptInput.style.display = 'block';
         collegeInput.style.display = 'none';
         break;
@@ -279,19 +278,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         majorInput.style.display = 'block';
         strandInput.style.display = 'none';
         gradeInput.style.display = 'none';
-        schoolSelect.style.display = 'none';
+        schoolInput.style.display = 'none';
         campusDeptInput.style.display = 'none';
         collegeInput.style.display = 'none'; // Hide college input for students
         break;
     }
   };
 
+  // Function to toggle the 'Specify School' input field visibility
   const toggleSpecifySchoolInput = () => {
-    if (schoolSelected && schoolSelected.value === 'other') {
-      specifySchoolInput.style.display = 'block'; // Show the input field
-    } else {
-      specifySchoolInput.style.display = 'none'; // Hide the input field
-    }
+    specifySchoolInput.style.display = schoolSelect.value === 'other' ? 'block' : 'none';
   };
 
   // Event listener for when patron type is changed
@@ -363,6 +359,7 @@ function generateRandomToken() {
 }
 
 
+// Submit Form
 // Submit Form
 document.querySelector(".submit").addEventListener("click", async (event) => {
   event.preventDefault();
